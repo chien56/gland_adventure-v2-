@@ -54,7 +54,7 @@ def load_animations(path, frame_durations):
     for frame in frame_durations:
         animation_frame_id = animation_name + '_' + str(n)
         img_loc = path + '/' + animation_frame_id + '.png'#player animations/course/course_1.png --------- le nom des fichiers d'animation est important
-        animation_image = pygame.image.load(img_loc).convert()
+        animation_image = pygame.image.load(img_loc).convert_alpha()
         #animation_image.set_colorkey((0, 0, 0)) #supprime le noir des sprites au besoin
         animation_frames[animation_frame_id] = animation_image.copy()
         for i in range(frame):
