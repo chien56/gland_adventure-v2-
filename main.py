@@ -54,7 +54,10 @@ def load_animations(path, frame_durations):
     for frame in frame_durations:
         animation_frame_id = animation_name + '_' + str(n)
         img_loc = path + '/' + animation_frame_id + '.png'#player animations/course/course_1.png --------- le nom des fichiers d'animation est important
+
         animation_image = pygame.image.load(img_loc).convert_alpha()
+#        if img_loc == "animations player/immobile/immobile_0.png" : # Si l'image chargé est immobile_0.png
+#            animation_image = pygame.transform.scale(animation_image,(55,55)) # changer la taille de l'image à tant de pixel sur tant de pixel
         #animation_image.set_colorkey((0, 0, 0)) #supprime le noir des sprites au besoin
         animation_frames[animation_frame_id] = animation_image.copy()
         for i in range(frame):
@@ -77,7 +80,7 @@ player_flip = False
 
 grass_sound_timer = 0
 
-player_rect = pygame.Rect(50, 50, 35, 60) #taille de la hitbox, a voir dans le futur pour mettre ça en variable
+player_rect = pygame.Rect(50, 50, 35, 55) #taille de la hitbox, a voir dans le futur pour mettre ça en variable
 
 game_map = load_map('map')#pas beson de mettre .txt
 
@@ -99,18 +102,22 @@ def move (rect, movement, tiles):
         if movement[0] > 0:
             rect.right = tile.left
             collision_types['right']=True
+
         elif movement[0] < 0:
             rect.left = tile.right
             collision_types['left']=True
+
     rect.y += movement[1]
     hit_list = collison_test(rect, tiles)
     for tile in hit_list:
         if movement[1] > 0:
             rect.bottom = tile.top
             collision_types['bottom']=True
+
         elif movement[1] < 0:
             rect.top = tile.bottom
             collision_types['top'] = True
+
     return rect, collision_types
 
 moving_right = False
@@ -179,8 +186,10 @@ while True: #boucle du jeu
     if player_movement[0]<0:
         player_action, player_frame = change_action(player_action, player_frame, 'course')#(gauche)
         player_flip=True
+
     if player_movement[0]==0:
-        player_action, player_frame = change_action(player_action, player_frame, 'immobile')#immobile
+        player_action, player_frame = change_action(player_action, player_frame, 'immobile')#
+        
 
 
     player_rect, collisions = move(player_rect, player_movement, tile_rects)
