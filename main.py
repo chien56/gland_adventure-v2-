@@ -32,7 +32,7 @@ pygame.mixer.music.play(-1)#nombre de repetitions (negatif=indefiniment)
 
 TILE_SIZE = grass_image.get_width()
 
-"""def load_map(path):
+def load_map(path):
     f= open(path + '.txt','r') # <-
     data = f.read()
     f.close()
@@ -40,9 +40,8 @@ TILE_SIZE = grass_image.get_width()
     game_map = []
     for row in data:
         game_map.append(list(row))
-    return game_map"""
+    return game_map
 
-def generate_chunk(x, y):
 
 
 global animation_frames #<-- cette variable est la meme que celle definie a l'exterieur de la fonction
@@ -81,7 +80,7 @@ grass_sound_timer = 0
 
 player_rect = pygame.Rect(50, 50, 35, 60) #taille de la hitbox, a voir dans le futur pour mettre ça en variable
 
-game_map = {} #pas beson de mettre .txt
+game_map = load_map('map')#pas beson de mettre .txt
 
 background_objects = [[0.25,[240,20,140,800]],[0.25,[560,60,80,800]],[0.5,[60,80,80,800]],[0.5,[260,180,200,800]],[0.5,[600,160,240,800]]] # garder l'ordre croissant dans les multiplicateurs 0.25,...
 
@@ -148,7 +147,7 @@ while True: #boucle du jeu
 
 
     tile_rects = []
-    """y=0
+    y=0
     for row in game_map:
         x=0
         for tile in row:
@@ -161,7 +160,7 @@ while True: #boucle du jeu
             if tile != '0':
                 tile_rects.append(pygame.Rect(x*TILE_SIZE, y*TILE_SIZE, TILE_SIZE, TILE_SIZE))
             x+=1
-        y+=1"""
+        y+=1
 
 
 
