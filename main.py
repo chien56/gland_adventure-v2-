@@ -16,7 +16,7 @@ if fullscreen == True :
     screen = pygame.display.set_mode(ScreenSize[0], 0, 32)
 
 else :
-    screen = pygame.display.set_mode(WINDOW_SIZE, 0, 32) #initie la fenetre
+    screen = pygame.display.set_mode(WINDOW_SIZE, 0, 32)#initie la fenetre
 
 
 display = pygame.Surface((600, 400))
@@ -235,7 +235,8 @@ while True: #boucle du jeu
         if event.type == QUIT:#verifie si la croix est pressée
             pygame.quit()#quitte pygame
             sys.exit()#ferme le script
-
+        if event.type == VIDEORESIZE :
+            print("a")
         if event.type == KEYDOWN:
             if event.key == K_w:
                 pygame.mixer.music.fadeout(1000)
