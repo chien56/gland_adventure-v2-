@@ -1,8 +1,8 @@
 import pygame, sys, os, random
 
 clock = pygame.time.Clock()#met en place l'horloge
+from pygame.locals import*  #importe les modules pygame
 
-from pygame.locals import* #importe les modules pygame
 pygame.init() #initie pygame
 pygame.mixer.pre_init(44100, -16, 2, 512)
 
