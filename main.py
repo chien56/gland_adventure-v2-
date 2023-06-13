@@ -68,10 +68,9 @@ def change_action(action_var, frame, new_value):
         frame=0
     return action_var, frame
 
-animation_database = {}
-animation_database['course']= load_animations('animations player/course', [7, 7, 7, 7, 7, 7, 7])#<- le dernier terme est le nombre de frame qui s'écoule entre chaque sprite
-animation_database['immobile']=load_animations('animations player/immobile', [7, 10])
-animation_database['saut']= load_animations('animations player/saut', [7, 7, 7, 7])
+animation_database = {'course': load_animations('animations player/course', [7, 7, 7, 7, 7, 7, 7]),
+                      'immobile': load_animations('animations player/immobile', [7, 10]),
+                      'saut': load_animations('animations player/saut', [7, 7, 7, 7])}
 player_action = 'immobile'
 player_frame = 0
 player_flip = False
