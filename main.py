@@ -22,6 +22,21 @@ grass_image = pygame.image.load('images terrain/grass.png')
 dirt_image = pygame.image.load('images terrain/dirt.png')
 stone_image = pygame.image.load('images terrain/stone.png')
 
+jumper_image = pygame.image.load('champi.png').convert_alpha()
+JUMPER_WIDTH = jumper_image.get_width()
+JUMPER_HEIGHT = jumper_image.get_height()
+class jumper_obj():
+    def __init__(self, loc):
+        self.loc = loc
+    def render(self, surf, scroll):#affiche
+        surf.blit(jumper_image, (self.loc[0]-scroll[0], self.loc[1]-scroll[1]))
+    def get_rect(self):#crée le rect
+        return pygame.Rect(self.loc[0], self.loc[1], JUMPER_WIDTH, JUMPER_HEIGHT )
+    def collision_test(self, rect):#test de collision
+        jumper_rect = self.get_rect()
+        return jumper_rect.colliderect(rect)
+
+
 jump_sound = pygame.mixer.Sound('sons/jump.wav')
 grass_sounds = [pygame.mixer.Sound('sons/grass_0.wav'), pygame.mixer.Sound('sons/grass_1.wav')]
 grass_sounds[0].set_volume(0.2)
@@ -32,7 +47,7 @@ pygame.mixer.music.play(-1)#nombre de repetitions (negatif=indefiniment)
 
 TILE_SIZE = grass_image.get_width()
 
-"""def load_map(path):
+def load_map(path):
     f= open(path + '.txt','r') # <-
     data = f.read()
     f.close()
@@ -40,9 +55,8 @@ TILE_SIZE = grass_image.get_width()
     game_map = []
     for row in data:
         game_map.append(list(row))
-    return game_map"""
+    return game_map
 
-def generate_chunk(x, y):
 
 
 global animation_frames #<-- cette variable est la meme que celle definie a l'exterieur de la fonction
@@ -55,7 +69,7 @@ def load_animations(path, frame_durations):
     for frame in frame_durations:
         animation_frame_id = animation_name + '_' + str(n)
         img_loc = path + '/' + animation_frame_id + '.png'#player animations/course/course_1.png --------- le nom des fichiers d'animation est important
-        animation_image = pygame.image.load(img_loc).convert()
+        animation_image = pygame.image.load(img_loc).convert_alpha()
         #animation_image.set_colorkey((0, 0, 0)) #supprime le noir des sprites au besoin
         animation_frames[animation_frame_id] = animation_image.copy()
         for i in range(frame):
@@ -71,7 +85,7 @@ def change_action(action_var, frame, new_value):
 
 animation_database = {}
 animation_database['course']= load_animations('animations player/course', [7, 7, 7, 7, 7, 7, 7])#<- le dernier terme est le nombre de frame qui s'écoule entre chaque sprite
-animation_database['immobile']=load_animations('animations player/immobile', [7, 10])
+animation_database['immobile']=load_animations('animations player/immobile', [7, 7])
 animation_database['saut']= load_animations('animations player/saut', [7, 7, 7, 7])
 player_action = 'immobile'
 player_frame = 0
@@ -79,11 +93,14 @@ player_flip = False
 
 grass_sound_timer = 0
 
-player_rect = pygame.Rect(50, 50, 35, 60) #taille de la hitbox, a voir dans le futur pour mettre ça en variable
+player_rect = pygame.Rect(50, 50, 35, 55) #taille de la hitbox, a voir dans le futur pour mettre ça en variable
 
-game_map = {} #pas beson de mettre .txt
+game_map = load_map('map') #pas beson de mettre .txt
 
 background_objects = [[0.25,[240,20,140,800]],[0.25,[560,60,80,800]],[0.5,[60,80,80,800]],[0.5,[260,180,200,800]],[0.5,[600,160,240,800]]] # garder l'ordre croissant dans les multiplicateurs 0.25,...
+
+jumper_objects = []
+
 
 
 def collison_test(rect, tiles):
@@ -127,7 +144,7 @@ true_scroll = [0, 0]
 
 ########################################################################################################################
 while True: #boucle du jeu
-    display.fill((90, 68, 50))
+    display.fill((255, 128, 0))
 
     if grass_sound_timer > 0:
         grass_sound_timer -= 1
@@ -148,7 +165,9 @@ while True: #boucle du jeu
 
 
     tile_rects = []
-    """y=0
+
+
+    y=0
     for row in game_map:
         x=0
         for tile in row:
@@ -158,10 +177,13 @@ while True: #boucle du jeu
                 display.blit(grass_image, (x * TILE_SIZE - scroll[0], y * TILE_SIZE - scroll[1]))
             if tile == '3':
                 display.blit(stone_image, (x * TILE_SIZE - scroll[0], y * TILE_SIZE - scroll[1]))
+            if tile == '4':
+                jumper_objects.append(jumper_obj((x * TILE_SIZE, y * TILE_SIZE )))
             if tile != '0':
                 tile_rects.append(pygame.Rect(x*TILE_SIZE, y*TILE_SIZE, TILE_SIZE, TILE_SIZE))
             x+=1
-        y+=1"""
+        y+=1
+
 
 
 
@@ -185,10 +207,12 @@ while True: #boucle du jeu
         player_action, player_frame = change_action(player_action, player_frame, 'immobile')#immobile
 
 
+
     player_rect, collisions = move(player_rect, player_movement, tile_rects)
 
     if collisions['bottom']:
         player_y_momentum = 0
+
         air_timer=0
         if player_movement[0] != 0:
             if grass_sound_timer==0:
@@ -208,6 +232,16 @@ while True: #boucle du jeu
         player_y_momentum = 1
 
     player_frame += 1
+
+    for jumper in jumper_objects:
+
+        jumper.render(display, scroll)          #cree une surface
+        print(jumper.get_rect())
+        print(player_rect.bottom)
+        print(jumper.collision_test(player_rect))
+        if jumper.collision_test(player_rect) :
+            player_y_momentum = -15
+
     if player_frame>= len(animation_database[player_action]): #boucle d'animation
         player_frame=0
 
@@ -222,6 +256,7 @@ while True: #boucle du jeu
         if event.type == QUIT:#verifie si la croix est pressée
             pygame.quit()#quitte pygame
             sys.exit()#ferme le script
+
 
         if event.type == KEYDOWN:
             if event.key == K_w:
