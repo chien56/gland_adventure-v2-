@@ -236,9 +236,7 @@ while True: #boucle du jeu
     for jumper in jumper_objects:
 
         jumper.render(display, scroll)          #cree une surface
-        print(jumper.get_rect())
-        print(player_rect.bottom)
-        print(jumper.collision_test(player_rect))
+
         if jumper.collision_test(player_rect) :
             player_y_momentum = -15
 
