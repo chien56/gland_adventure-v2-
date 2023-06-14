@@ -9,7 +9,7 @@ objects = []
 pygame.mixer.set_num_channels(64)
 
 pygame.display.set_caption('gland_adventure')#nomme la fenetre
-fullscreen = False
+fullscreen = True
 WINDOW_SIZE = (1200, 800)#donne la taille de la fenetre
 if fullscreen == True :
     ScreenSize = pygame.display.get_desktop_sizes()
@@ -252,19 +252,19 @@ def game() :
                     pygame.mixer.music.fadeout(1000)
                 if event.key == K_x:
                     pygame.mixer.music.play(-1)
-                if event.key == K_RIGHT:
+                if event.key == K_RIGHT or event.key == K_d:
                     moving_right = True
-                if event.key == K_LEFT:
+                if event.key == K_LEFT or event.key == K_q:
                     moving_left = True
-                if event.key == K_UP:
+                if event.key == K_UP or event.key == K_z:
                     if air_timer < 13: #peut sauter dans ce laps de temps, utile pour sauter apres une plateforme
                         jump_sound.play()
                         player_y_momentum= -11 #hauteur de saut
 
             if event.type == KEYUP:
-                if event.key == K_RIGHT:
+                if event.key == K_RIGHT or event.key == K_d:
                     moving_right = False
-                if event.key == K_LEFT:
+                if event.key == K_LEFT or event.key == K_q:
                     moving_left = False
 
 
@@ -285,7 +285,7 @@ def menu(resolution, screen):
     while inmenu:
         screen.blit(background, (0,0)) # affiche le fond
         poitionButton = button(resolution[0]/2 -100 , resolution[1]/2 - 25, 50, 200, "Jouer", (255, 0, 0), "game()") #créer et affiche le bouton jouer
-        positionButton2 = button(resolution[0]/2 - 100, resolution[1]/2 + 100 , 50, 200, "Quitter", (255,0,0),"pygame.quit()") #créer et affiche le bouton quitter
+        positionButton2 = button(resolution[0]/2 - 100, resolution[1]/2 + 50 , 50, 200, "Quitter", (255,0,0),"pygame.quit()") #créer et affiche le bouton quitter
 
 
         for event in pygame.event.get():#boucle d'evenement d'entrée
