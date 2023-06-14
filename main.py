@@ -285,7 +285,7 @@ def menu(resolution, screen):
 
     while inmenu:
         screen.blit(background, (0,0))
-        poitionButton = button(100, 100, 50, 200, "coucou", (255, 0, 0), "game()")
+        poitionButton = button(resolution[0]/2 -100 , resolution[1]/2 - 25, 50, 200, "Jouer", (255, 0, 0), "game()")
 
         for event in pygame.event.get():#boucle d'evenement d'entrée
 
