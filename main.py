@@ -12,10 +12,15 @@ pygame.display.set_caption('gland_adventure')#nomme la fenetre
 
 WINDOW_SIZE = (1200, 800)#donne la taille de la fenetre
 
-screen = pygame.display.set_mode(WINDOW_SIZE, 0, 32) #initie la fenetre
 
 display = pygame.Surface((600, 400))
+fullscreen = False
+if fullscreen == True :
+    ScreenSize = pygame.display.get_desktop_sizes()
+    screen = pygame.display.set_mode(ScreenSize[0], 0, 32)
 
+else :
+    screen = pygame.display.set_mode(WINDOW_SIZE, 0, 32) #initie la fenetre
 
 
 grass_image = pygame.image.load('images terrain/grass.png')
@@ -277,8 +282,10 @@ while True: #boucle du jeu
                 moving_right = False
             if event.key == K_LEFT:
                 moving_left = False
-
-    surf = pygame.transform.scale(display, WINDOW_SIZE)
+    if fullscreen == False:
+        surf = pygame.transform.scale(display, WINDOW_SIZE)
+    else:
+        surf = pygame.transform.scale(display, ScreenSize[0])
     screen.blit(surf, (0, 0))
     pygame.display.update()#rafraichit l'ecran
     clock.tick(60)#maintient 60 fps
