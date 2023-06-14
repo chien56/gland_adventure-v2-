@@ -26,11 +26,11 @@ def text_objects(text, font):
 
 
 def button(x,y,hauteur,largeur,message,couleur, fonction):
-    pygame.draw.rect(screen, couleur, pygame.Rect(x,y,largeur,hauteur))
-    largetext = pygame.font.SysFont('Arial',25)
-    largetextsurf = largetext.render(message, True, (0,0,0))
-    screen.blit(largetextsurf, (x,y))
-    return (x, y, x+largeur, y+hauteur, fonction)
+    pygame.draw.rect(screen, couleur, pygame.Rect(x,y,largeur,hauteur)) #créer un rectangle
+    largetext = pygame.font.SysFont('Arial',25) # définie la police du texte
+    largetextsurf = largetext.render(message, True, (0,0,0)) # créer le texte
+    screen.blit(largetextsurf, (x,y)) # affiche le texte
+    return (x, y, x+largeur, y+hauteur, fonction) #renvoie les coordonées du bouton et la fonction qu'il devra éxécuter
 
 
 def game() :
@@ -277,16 +277,15 @@ def game() :
         clock.tick(60)#maintient 60 fps
 
 def menu(resolution, screen):
-    inmenu = True
-    background = pygame.image.load('Image_Menu/background.jpg')
+    inmenu = True # le jouer est dans le menu
+    background = pygame.image.load('Image_Menu/background.jpg') # charge l'image de fond
     background = background.convert_alpha()
-    background = pygame.transform.scale(background, resolution)
-    font = pygame.font.SysFont("Arial", 20)
+    background = pygame.transform.scale(background, resolution) #dimensionne l'image de fond à la taille de l'écran
 
     while inmenu:
-        screen.blit(background, (0,0))
-        poitionButton = button(resolution[0]/2 -100 , resolution[1]/2 - 25, 50, 200, "Jouer", (255, 0, 0), "game()")
-        positionButton2 = button(resolution[0]/2 - 100, resolution[1]/2 + 100 , 50, 200, "Quitter", (255,0,0),"pygame.quit()")
+        screen.blit(background, (0,0)) # affiche le fond
+        poitionButton = button(resolution[0]/2 -100 , resolution[1]/2 - 25, 50, 200, "Jouer", (255, 0, 0), "game()") #créer et affiche le bouton jouer
+        positionButton2 = button(resolution[0]/2 - 100, resolution[1]/2 + 100 , 50, 200, "Quitter", (255,0,0),"pygame.quit()") #créer et affiche le bouton quitter
 
 
         for event in pygame.event.get():#boucle d'evenement d'entrée
@@ -294,13 +293,13 @@ def menu(resolution, screen):
             if event.type == QUIT:#verifie si la croix est pressée
                 pygame.quit()#quitte pygame
                 sys.exit()#ferme le script
-            if event.type == MOUSEBUTTONUP:
-                pos = pygame.mouse.get_pos()
+            if event.type == MOUSEBUTTONUP: # si clique gauche
+                pos = pygame.mouse.get_pos() # récupère la position du clique
 
-                if pos[0] >= poitionButton[0] and pos[0] <= poitionButton[2] and pos[1] >= poitionButton[1] and pos[1] <= poitionButton[3]:
-                    exec(poitionButton[4])
-                if pos[0] >= poitionButton[0] and pos[0] <= positionButton2[2] and pos[1] >= positionButton2[1] and pos[1] <= positionButton2[3]:
-                    exec(positionButton2[4])
+                if pos[0] >= poitionButton[0] and pos[0] <= poitionButton[2] and pos[1] >= poitionButton[1] and pos[1] <= poitionButton[3]: # Vérifie si le click est sur le bouton 1
+                    exec(poitionButton[4]) #execute la fonction du bouton 1
+                if pos[0] >= poitionButton[0] and pos[0] <= positionButton2[2] and pos[1] >= positionButton2[1] and pos[1] <= positionButton2[3]: # Vérifie si le click est sur le bouton 2
+                    exec(positionButton2[4]) #éxecute la fonction du bouton 2
 
 
         pygame.display.update()
