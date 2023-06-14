@@ -286,6 +286,7 @@ def menu(resolution, screen):
         screen.blit(background, (0,0)) # affiche le fond
         poitionButton = button(resolution[0]/2 -100 , resolution[1]/2 - 25, 50, 200, "Jouer", (255, 0, 0), "game()") #créer et affiche le bouton jouer
         positionButton2 = button(resolution[0]/2 - 100, resolution[1]/2 + 50 , 50, 200, "Quitter", (255,0,0),"pygame.quit()") #créer et affiche le bouton quitter
+        positionButton3 = button(resolution[0] / 2 - 100, resolution[1] / 2 + 125, 50, 200, "Pleine Ecran", (255, 0, 0),"")  # créer et affiche le bouton quitter
 
 
         for event in pygame.event.get():#boucle d'evenement d'entrée
@@ -298,8 +299,10 @@ def menu(resolution, screen):
 
                 if pos[0] >= poitionButton[0] and pos[0] <= poitionButton[2] and pos[1] >= poitionButton[1] and pos[1] <= poitionButton[3]: # Vérifie si le click est sur le bouton 1
                     exec(poitionButton[4]) #execute la fonction du bouton 1
-                if pos[0] >= poitionButton[0] and pos[0] <= positionButton2[2] and pos[1] >= positionButton2[1] and pos[1] <= positionButton2[3]: # Vérifie si le click est sur le bouton 2
+                if pos[0] >= positionButton2[0] and pos[0] <= positionButton2[2] and pos[1] >= positionButton2[1] and pos[1] <= positionButton2[3]: # Vérifie si le click est sur le bouton 2
                     exec(positionButton2[4]) #éxecute la fonction du bouton 2
+                if pos[0] >= positionButton3[0] and pos[0] <= positionButton3[2] and pos[1] >= positionButton3[1] and pos[1] <= positionButton3[3]: # Vérifie si le click est sur le bouton 2
+                    exec(positionButton3[4]) #éxecute la fonction du bouton 2
 
 
         pygame.display.update()
