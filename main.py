@@ -286,6 +286,8 @@ def menu(resolution, screen):
     while inmenu:
         screen.blit(background, (0,0))
         poitionButton = button(resolution[0]/2 -100 , resolution[1]/2 - 25, 50, 200, "Jouer", (255, 0, 0), "game()")
+        positionButton2 = button(resolution[0]/2 - 100, resolution[1]/2 + 100 , 50, 200, "Quitter", (255,0,0),"pygame.quit()")
+
 
         for event in pygame.event.get():#boucle d'evenement d'entrée
 
@@ -297,6 +299,8 @@ def menu(resolution, screen):
 
                 if pos[0] >= poitionButton[0] and pos[0] <= poitionButton[2] and pos[1] >= poitionButton[1] and pos[1] <= poitionButton[3]:
                     exec(poitionButton[4])
+                if pos[0] >= poitionButton[0] and pos[0] <= positionButton2[2] and pos[1] >= positionButton2[1] and pos[1] <= positionButton2[3]:
+                    exec(positionButton2[4])
 
 
         pygame.display.update()
