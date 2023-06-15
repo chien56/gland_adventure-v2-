@@ -26,6 +26,7 @@ def loadScreen(fullscreen):
         screen = pygame.display.set_mode(WINDOW_SIZE)  # initie la fenetre
         surf = pygame.transform.scale(display, WINDOW_SIZE)
         resolution = WINDOW_SIZE
+
     return resolution, screen, surf, fullscreen
 
 def changeFullscreen(fullscreen):
@@ -49,7 +50,7 @@ def button(x,y,hauteur,largeur,message,couleur, fonction,screen):
     return (x, y, x+largeur, y+hauteur, fonction) #renvoie les coordonées du bouton et la fonction qu'il devra éxécuter
 
 
-def game(screen) :
+def game(screen,resolution) :
     grass_image = pygame.image.load('images terrain/grass.png')
     dirt_image = pygame.image.load('images terrain/dirt.png')
     stone_image = pygame.image.load('images terrain/stone.png')
@@ -282,7 +283,7 @@ def game(screen) :
                     moving_right = False
                 if event.key == K_LEFT or event.key == K_q:
                     moving_left = False
-
+        surf = pygame.transform.scale(display, resolution)
         screen.blit(surf, (0, 0))
         pygame.display.update()#rafraichit l'ecran
         clock.tick(60)#maintient 60 fps
@@ -295,7 +296,7 @@ def menu(resolution, screen, fullscreen):
 
     while inmenu:
         screen.blit(background, (0,0)) # affiche le fond
-        poitionButton = button(resolution[0]/2 -100 , resolution[1]/2 - 25, 50, 200, "Jouer", (255, 0, 0), "game(screen)",screen) #créer et affiche le bouton jouer
+        poitionButton = button(resolution[0]/2 -100 , resolution[1]/2 - 25, 50, 200, "Jouer", (255, 0, 0), "game(screen,resolution)",screen) #créer et affiche le bouton jouer
         positionButton2 = button(resolution[0]/2 - 100, resolution[1]/2 + 50 , 50, 200, "Quitter", (255,0,0),"pygame.quit()",screen) #créer et affiche le bouton quitter
         positionButton3 = button(resolution[0] / 2 - 100, resolution[1] / 2 + 125, 50, 200, "Pleine Ecran", (255, 0, 0),"changeFullscreen(fullscreen)",screen)  # créer et affiche le bouton quitter
 
