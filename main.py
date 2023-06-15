@@ -9,23 +9,39 @@ objects = []
 pygame.mixer.set_num_channels(64)
 
 pygame.display.set_caption('gland_adventure')#nomme la fenetre
-fullscreen = True
-WINDOW_SIZE = (1200, 800)#donne la taille de la fenetre
-if fullscreen == True :
-    ScreenSize = pygame.display.get_desktop_sizes()
-    screen = pygame.display.set_mode(ScreenSize[0], 0, 32)
-
-else :
-    screen = pygame.display.set_mode(WINDOW_SIZE, 0, 32)#initie la fenetre
 
 
 display = pygame.Surface((600, 400))
+def loadScreen(fullscreen):
+    if fullscreen == True:
+        ScreenSize = pygame.display.get_desktop_sizes()
+        screen = pygame.display.set_mode(ScreenSize[0],pygame.FULLSCREEN)
+        surf = pygame.transform.scale(display, ScreenSize[0])
+        resolution = ScreenSize[0]
+
+
+    else:
+
+        WINDOW_SIZE = (1200, 800)  # donne la taille de la fenetre
+        screen = pygame.display.set_mode(WINDOW_SIZE)  # initie la fenetre
+        surf = pygame.transform.scale(display, WINDOW_SIZE)
+        resolution = WINDOW_SIZE
+    return resolution, screen, surf, fullscreen
+
+def changeFullscreen(fullscreen):
+    if fullscreen == False :
+        resolution ,screen, surf, fullscreen = loadScreen(True)
+
+    else:
+        resolution, screen, surf, fullscreen = loadScreen(False)
+    return resolution, screen, surf, fullscreen
+
 def text_objects(text, font):
     textSurface = font.render(text, True, (0,0,0))
     return textSurface, textSurface.get_rect()
 
 
-def button(x,y,hauteur,largeur,message,couleur, fonction):
+def button(x,y,hauteur,largeur,message,couleur, fonction,screen):
     pygame.draw.rect(screen, couleur, pygame.Rect(x,y,largeur,hauteur)) #créer un rectangle
     largetext = pygame.font.SysFont('Arial',25) # définie la police du texte
     largetextsurf = largetext.render(message, True, (0,0,0)) # créer le texte
@@ -33,7 +49,7 @@ def button(x,y,hauteur,largeur,message,couleur, fonction):
     return (x, y, x+largeur, y+hauteur, fonction) #renvoie les coordonées du bouton et la fonction qu'il devra éxécuter
 
 
-def game() :
+def game(screen) :
     grass_image = pygame.image.load('images terrain/grass.png')
     dirt_image = pygame.image.load('images terrain/dirt.png')
     stone_image = pygame.image.load('images terrain/stone.png')
@@ -145,9 +161,9 @@ def game() :
 
     true_scroll = [0, 0]
 
-
     ########################################################################################################################
     while True: #boucle du jeu
+
         display.fill((90, 68, 50))
 
         if grass_sound_timer > 0:
@@ -267,16 +283,11 @@ def game() :
                 if event.key == K_LEFT or event.key == K_q:
                     moving_left = False
 
-
-        if fullscreen == False :
-            surf = pygame.transform.scale(display, WINDOW_SIZE)
-        else:
-            surf = pygame.transform.scale(display, ScreenSize[0])
         screen.blit(surf, (0, 0))
         pygame.display.update()#rafraichit l'ecran
         clock.tick(60)#maintient 60 fps
 
-def menu(resolution, screen):
+def menu(resolution, screen, fullscreen):
     inmenu = True # le jouer est dans le menu
     background = pygame.image.load('Image_Menu/background.jpg') # charge l'image de fond
     background = background.convert_alpha()
@@ -284,9 +295,9 @@ def menu(resolution, screen):
 
     while inmenu:
         screen.blit(background, (0,0)) # affiche le fond
-        poitionButton = button(resolution[0]/2 -100 , resolution[1]/2 - 25, 50, 200, "Jouer", (255, 0, 0), "game()") #créer et affiche le bouton jouer
-        positionButton2 = button(resolution[0]/2 - 100, resolution[1]/2 + 50 , 50, 200, "Quitter", (255,0,0),"pygame.quit()") #créer et affiche le bouton quitter
-        positionButton3 = button(resolution[0] / 2 - 100, resolution[1] / 2 + 125, 50, 200, "Pleine Ecran", (255, 0, 0),"")  # créer et affiche le bouton quitter
+        poitionButton = button(resolution[0]/2 -100 , resolution[1]/2 - 25, 50, 200, "Jouer", (255, 0, 0), "game(screen)",screen) #créer et affiche le bouton jouer
+        positionButton2 = button(resolution[0]/2 - 100, resolution[1]/2 + 50 , 50, 200, "Quitter", (255,0,0),"pygame.quit()",screen) #créer et affiche le bouton quitter
+        positionButton3 = button(resolution[0] / 2 - 100, resolution[1] / 2 + 125, 50, 200, "Pleine Ecran", (255, 0, 0),"changeFullscreen(fullscreen)",screen)  # créer et affiche le bouton quitter
 
 
         for event in pygame.event.get():#boucle d'evenement d'entrée
@@ -299,10 +310,13 @@ def menu(resolution, screen):
 
                 if pos[0] >= poitionButton[0] and pos[0] <= poitionButton[2] and pos[1] >= poitionButton[1] and pos[1] <= poitionButton[3]: # Vérifie si le click est sur le bouton 1
                     exec(poitionButton[4]) #execute la fonction du bouton 1
+                    break
                 if pos[0] >= positionButton2[0] and pos[0] <= positionButton2[2] and pos[1] >= positionButton2[1] and pos[1] <= positionButton2[3]: # Vérifie si le click est sur le bouton 2
                     exec(positionButton2[4]) #éxecute la fonction du bouton 2
                 if pos[0] >= positionButton3[0] and pos[0] <= positionButton3[2] and pos[1] >= positionButton3[1] and pos[1] <= positionButton3[3]: # Vérifie si le click est sur le bouton 2
-                    exec(positionButton3[4]) #éxecute la fonction du bouton 2
+
+                    resolution, screen, surf,fullscreen = eval(positionButton3[4]) #éxecute la fonction du bouton 2
+                    menu(resolution,screen,fullscreen)
 
 
         pygame.display.update()
@@ -310,7 +324,5 @@ def menu(resolution, screen):
 
 
 
-if fullscreen:
-    menu(ScreenSize[0], screen)
-else:
-    menu(WINDOW_SIZE,screen)
+resolution,screen,surf, fullscreen = loadScreen(True)
+menu(resolution, screen, fullscreen)
