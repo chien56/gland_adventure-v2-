@@ -52,15 +52,15 @@ def button(x,y,hauteur,largeur,message,couleur, fonction,screen):
 
 def game(screen,resolution):
     enemy_image = pygame.image.load('enemy.png').convert_alpha() #charge image ennemi
-    caisse_image = pygame.image.load('caisse .png') #charge image caisse
-    key_image = pygame.image.load('key.png')#charge image clé
+    caisse_image = pygame.image.load('caisse .png').convert_alpha() #charge image caisse
+    key_image = pygame.image.load('key.png').convert_alpha()#charge image clé
 
 
-    grass_image = pygame.image.load('images terrain/grass.png') #charge image herbe
-    dirt_image = pygame.image.load('images terrain/dirt.png') #charge image terre
-    stone_image = pygame.image.load('images terrain/stone.png') #charge image pierre
-    pics_image = pygame.image.load('pics.png')#charge image pics
-    door_image = pygame.image.load('door.png')#charge image porte
+    grass_image = pygame.image.load('images terrain/grass.png').convert_alpha() #charge image herbe
+    dirt_image = pygame.image.load('images terrain/dirt.png').convert_alpha() #charge image terre
+    stone_image = pygame.image.load('images terrain/stone.png').convert_alpha() #charge image pierre
+    pics_image = pygame.image.load('pics.png').convert_alpha()#charge image pics
+    door_image = pygame.image.load('door.png').convert_alpha()#charge image porte
 
     jumper_image = pygame.image.load('champi.png').convert_alpha() #charge image champi rebondissant
     JUMPER_WIDTH = jumper_image.get_width() #recupere la largeur du champi
@@ -299,6 +299,7 @@ def game(screen,resolution):
             for projectile in projectile_groupe:
                 if projectile.rect.colliderect((enemy.x - scroll[0], enemy.y-scroll[1], ENEMY_WIDTH, ENEMY_HEIGHT)):
                     enemy.vie -= projectile.degats #fait prendre des degats a l'ennemi s'il touche un projectile
+                    projectile_groupe.remove(projectile)
                     pass
 
         if grass_sound_timer > 0:
