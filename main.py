@@ -26,15 +26,15 @@ display = pygame.Surface((600, 400)) #definit combien de pixels vont etre utilis
 
 
 enemy_image = pygame.image.load('enemy.png').convert_alpha() #charge image ennemi
-caisse_image = pygame.image.load('caisse .png') #charge image caisse
-key_image = pygame.image.load('key.png')#charge image clé
+caisse_image = pygame.image.load('caisse .png').convert_alpha() #charge image caisse
+key_image = pygame.image.load('key.png').convert_alpha()#charge image clé
 
 
-grass_image = pygame.image.load('images terrain/grass.png') #charge image herbe
-dirt_image = pygame.image.load('images terrain/dirt.png') #charge image terre
-stone_image = pygame.image.load('images terrain/stone.png') #charge image pierre
-pics_image = pygame.image.load('pics.png')#charge image pics
-door_image = pygame.image.load('door.png')#charge image porte
+grass_image = pygame.image.load('images terrain/grass.png').convert_alpha() #charge image herbe
+dirt_image = pygame.image.load('images terrain/dirt.png').convert_alpha()#charge image terre
+stone_image = pygame.image.load('images terrain/stone.png').convert_alpha()#charge image pierre
+pics_image = pygame.image.load('pics.png').convert_alpha()#charge image pics
+door_image = pygame.image.load('door.png').convert_alpha()#charge image porte
 
 jumper_image = pygame.image.load('champi.png').convert_alpha() #charge image champi rebondissant
 JUMPER_WIDTH = jumper_image.get_width() #recupere la largeur du champi
@@ -249,8 +249,6 @@ while True: #boucle du jeu
             enemy_list.remove(enemy) #fait mourir l'ennemi
 
 
-    print(enemy.vie)
-
     #dictionnaire_vide_ennemi = {}
     #dictionnaire_images_ennemi = self.ennemi.image_liste(self.image_ennemi, dictionnaire_vide_ennemi)
     pygame.draw.rect(display, (255, 255, 0), (100, 150, 100, 100))#dessine soleil
@@ -273,6 +271,7 @@ while True: #boucle du jeu
         for projectile in projectile_groupe:
             if projectile.rect.colliderect((enemy.x - scroll[0], enemy.y-scroll[1], ENEMY_WIDTH, ENEMY_HEIGHT)):
                 enemy.vie -= projectile.degats #fait prendre des degats a l'ennemi s'il touche un projectile
+                projectile_groupe.remove(projectile)
                 pass
 
     if grass_sound_timer > 0:
@@ -351,11 +350,11 @@ while True: #boucle du jeu
     player_movement = [0,0]# "vitesse" horizontale et verticale
     if moving_right : #si joueur va a droite
         #player_flip = False
-        player_movement[0] += 2 #avancer de 2 en x
+        player_movement[0] += 3 #avancer de 2 en x
         direction = 1 #vers la droite
     if moving_left : #si le joueur va a gauche
         #player_flip = True
-        player_movement[0] -= 2 #avancer de 2 en x
+        player_movement[0] -= 3 #avancer de 2 en x
         direction = -1#vers la gauche
 
     player_movement[1] = player_y_momentum #altitude = player y momentum
