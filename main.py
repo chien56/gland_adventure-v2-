@@ -249,7 +249,7 @@ def game(screen,resolution):
     keys = 0
 
 
-    ########################################################################################################################################################################
+    ##############################################################################################################################################################################
     while True: #boucle du jeu
         display.fill((255, 128, 0)) #couleur de fond d'écran
         scroll = true_scroll.copy()
@@ -262,38 +262,13 @@ def game(screen,resolution):
             tile_u = tile
 
 
-        for enemy in enemy_list: #pour chaque ennemi dans la lioste d'ennemis
-            enemy.x += 1 * enemy.direction #ajouter 1 a la pos x de l'ennemi
-            enemy.rect[0] += 1* enemy.direction #actualiser l'ennemi rect en ajoutant 1 aussi
-            enemy.y += 0 #ajouter 1 a la pos y de l'ennemi
-            enemy.rect[1] += 0 #actualiser l'ennemi rect en ajoutant 1 aussi
-            enemy.render(display, scroll ) #afficher l'ennemi
-            if player_rect.colliderect((enemy.x , enemy.y, ENEMY_WIDTH, ENEMY_HEIGHT)): #si le joueur touche un ennemi
-                pv -= 1 #il perd des pv
-                pass #il n'en perd pas a l'infini
-            if enemy.vie < 0:
-                enemy_list.remove(enemy) #fait mourir l'ennemi
-
-
-        print(enemy.vie)
-
         #dictionnaire_vide_ennemi = {}
         #dictionnaire_images_ennemi = self.ennemi.image_liste(self.image_ennemi, dictionnaire_vide_ennemi)
         pygame.draw.rect(display, (255, 255, 0), (100, 150, 100, 100))#dessine soleil
-        pygame.draw.rect(display, (255, 0, 0), (jauge_vie))  # dessine un rectangle rouge aux co de la barre de vie
-        pygame.draw.rect(display, (0, 255, 0), (jauge_vie[0], jauge_vie[1], pv, jauge_vie[3]))  # dessine rectangle vert
+
 
         delta_temps = t2 -t1 #difference entre moment touche pressée et relachée
-        if joueur_a_tire: #si la touche de tir est relachée
-            if len(projectile_groupe) < tir_autorise and delta_temps > 0.05: #si le nombre de projectiles affichés a l'ecran est inferieur au nombre de tir autorisé et deltatemps superieur a 0.05s
-                projectile = Long_range((player_rect[0] -scroll[0], player_rect[1] -scroll[1] +20), [5, 5], direction, shoot_image, 5, 30)#crée un projectile
-                projectile_groupe.append(projectile)#ajoute ce projectile au groupe de projectiles
-                joueur_a_tire = False #le joueur n'est plus considéré comme ayant tiré
-        for projectile in projectile_groupe: #pour chaque projectile dans le groupe de projectiles
-            projectile.afficher(display, delta_temps)#afficher le projectile
-            projectile.mouvement(10) #donner la vitesse du projectile
-            if projectile.rect.right >= 800 or projectile.rect.right <= 0: #si le rect du projectile depasse ceux des bords de l'ecran
-                projectile_groupe.remove(projectile)#le projectile disparait du groupe et donc de l'ecran
+
 
         for enemy in enemy_list:
             for projectile in projectile_groupe:
@@ -494,6 +469,32 @@ def game(screen,resolution):
                 if event.key == pygame.K_SPACE:#si c espace
                     t2 = time.time()#finit le timer
                     joueur_a_tire = True#joueur tire
+
+        if joueur_a_tire: #si la touche de tir est relachée
+            if len(projectile_groupe) < tir_autorise and delta_temps > 0.05: #si le nombre de projectiles affichés a l'ecran est inferieur au nombre de tir autorisé et deltatemps superieur a 0.05s
+                projectile = Long_range((player_rect[0] -scroll[0], player_rect[1] -scroll[1] +20), [5, 5], direction, shoot_image, 5, 30)#crée un projectile
+                projectile_groupe.append(projectile)#ajoute ce projectile au groupe de projectiles
+                joueur_a_tire = False #le joueur n'est plus considéré comme ayant tiré
+        for projectile in projectile_groupe: #pour chaque projectile dans le groupe de projectiles
+            projectile.afficher(display, delta_temps)#afficher le projectile
+            projectile.mouvement(10) #donner la vitesse du projectile
+            if projectile.rect.right >= 800 or projectile.rect.right <= 0: #si le rect du projectile depasse ceux des bords de l'ecran
+                projectile_groupe.remove(projectile)#le projectile disparait du groupe et donc de l'ecran
+
+        pygame.draw.rect(display, (255, 0, 0), (jauge_vie))  # dessine un rectangle rouge aux co de la barre de vie
+        pygame.draw.rect(display, (0, 255, 0), (jauge_vie[0], jauge_vie[1], pv, jauge_vie[3]))  # dessine rectangle vert
+
+        for enemy in enemy_list: #pour chaque ennemi dans la lioste d'ennemis
+            enemy.x += 1 * enemy.direction #ajouter 1 a la pos x de l'ennemi
+            enemy.rect[0] += 1* enemy.direction #actualiser l'ennemi rect en ajoutant 1 aussi
+            enemy.y += 0 #ajouter 1 a la pos y de l'ennemi
+            enemy.rect[1] += 0 #actualiser l'ennemi rect en ajoutant 1 aussi
+            enemy.render(display, scroll ) #afficher l'ennemi
+            if player_rect.colliderect((enemy.x , enemy.y, ENEMY_WIDTH, ENEMY_HEIGHT)): #si le joueur touche un ennemi
+                pv -= 1 #il perd des pv
+                pass #il n'en perd pas a l'infini
+            if enemy.vie < 0:
+                enemy_list.remove(enemy) #fait mourir l'ennemi
 
         surf = pygame.transform.scale(display,resolution)
         screen.blit(surf, (0, 0)) #afficher a l'ecran le format modifié
