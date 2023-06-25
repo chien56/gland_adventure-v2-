@@ -14,6 +14,20 @@ pygame.display.set_caption('gland_adventure')#nomme la fenetre
 
 display = pygame.Surface((600, 400)) #definit combien de pixels vont etre utilisés dans la fenetre
 
+def text_objects(text, font):
+    textSurface = font.render(text, True, (0,0,0))
+    return textSurface, textSurface.get_rect()
+
+def button(x,y,hauteur,largeur,message,couleur, fonction,screen):
+    pygame.draw.rect(screen, couleur, pygame.Rect(x,y,largeur,hauteur)) #créer un rectangle
+    largetext = pygame.font.SysFont('Arial',25) # définie la police du texte
+    largetextsurf = largetext.render(message, True, (0,0,0)) # créer le texte
+    screen.blit(largetextsurf, (x,y)) # affiche le texte
+    return (x, y, x+largeur, y+hauteur, fonction) #renvoie les coordonées du bouton et la fonction qu'il devra éxécuter
+
+def loadOptionScreen(screen):
+    OptionButton = button(resolution[0]/2,resolution[1]/2, 100, 100,"Option",(255,0,0),"print(""hi"")", screen)
+    return OptionButton
 
 def loadScreen(fullscreen):
     if fullscreen == True:
@@ -39,18 +53,10 @@ def changeFullscreen(fullscreen):
         resolution, screen, surf, fullscreen = loadScreen(False)
     return resolution, screen, surf, fullscreen
 
-def text_objects(text, font):
-    textSurface = font.render(text, True, (0,0,0))
-    return textSurface, textSurface.get_rect()
 
-def button(x,y,hauteur,largeur,message,couleur, fonction,screen):
-    pygame.draw.rect(screen, couleur, pygame.Rect(x,y,largeur,hauteur)) #créer un rectangle
-    largetext = pygame.font.SysFont('Arial',25) # définie la police du texte
-    largetextsurf = largetext.render(message, True, (0,0,0)) # créer le texte
-    screen.blit(largetextsurf, (x,y)) # affiche le texte
-    return (x, y, x+largeur, y+hauteur, fonction) #renvoie les coordonées du bouton et la fonction qu'il devra éxécuter
 
 def game(screen,resolution):
+    EscapePressed = False
     enemy_image = pygame.image.load('enemy.png').convert_alpha() #charge image ennemi
     caisse_image = pygame.image.load('caisse .png') #charge image caisse
     key_image = pygame.image.load('key.png')#charge image clé
@@ -275,7 +281,6 @@ def game(screen,resolution):
                 enemy_list.remove(enemy) #fait mourir l'ennemi
 
 
-        print(enemy.vie)
 
         #dictionnaire_vide_ennemi = {}
         #dictionnaire_images_ennemi = self.ennemi.image_liste(self.image_ennemi, dictionnaire_vide_ennemi)
@@ -454,6 +459,8 @@ def game(screen,resolution):
         player_image = animation_frames[player_img_id] # donne l'image du joueur actuelle
 
         display.blit(pygame.transform.flip(player_image, player_flip, False), (player_rect.x - scroll[0], player_rect.y - scroll[1])) #afficher l'image en cours d'animation
+        if EscapePressed == True:
+            loadOptionScreen(display)
 
         for event in pygame.event.get():#boucle d'evenement d'entrée
 
@@ -493,6 +500,15 @@ def game(screen,resolution):
                 if event.key == pygame.K_SPACE:#si c espace
                     t2 = time.time()#finit le timer
                     joueur_a_tire = True#joueur tire
+                if event.key == pygame.K_ESCAPE:
+                    if EscapePressed == True:
+                        EscapePressed = False
+                        print("oui")
+                    else :
+                        EscapePressed = True
+                        print("non")
+
+
 
         surf = pygame.transform.scale(display,resolution)
         screen.blit(surf, (0, 0)) #afficher a l'ecran le format modifié
@@ -534,8 +550,6 @@ def menu(resolution, screen, fullscreen):
 
         pygame.display.update()
         clock.tick(60)
-
-
 
 resolution,screen,surf, fullscreen = loadScreen(True)
 menu(resolution, screen, fullscreen)
