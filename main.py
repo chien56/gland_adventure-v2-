@@ -96,7 +96,7 @@ def game(screen,resolution):
             if self.reading:
                 screen.blit(self.box, (self.X_POSITION, self.Y_POSITION))
                 text = self.font.render(self.texts[self.text_index], False, (0, 0, 0))
-                screen.blit(text, (self.X_POSITION +20, self.Y_POSITION))
+                screen.blit(text, (self.X_POSITION +20, self.Y_POSITION+20))
         def next_text(self):
             self.text_index += 1
 
@@ -185,7 +185,7 @@ def game(screen,resolution):
 
     grass_sound_timer = 0
 
-    player_rect = pygame.Rect(128, 50, 32, 55) #taille de la hitbox, a voir dans le futur pour mettre ça en variable
+    player_rect = pygame.Rect(64, 50, 32, 55) #taille de la hitbox, a voir dans le futur pour mettre ça en variable
 
     game_map = load_map('mapversion4') #pas beson de mettre .txt
 
