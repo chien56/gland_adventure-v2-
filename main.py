@@ -29,6 +29,7 @@ def loadScreen(fullscreen):
         surf = pygame.transform.scale(display, WINDOW_SIZE)
         resolution = WINDOW_SIZE
 
+
     return resolution, screen, surf, fullscreen
 
 def changeFullscreen(fullscreen):
@@ -43,11 +44,11 @@ def text_objects(text, font):
     textSurface = font.render(text, True, (0,0,0))
     return textSurface, textSurface.get_rect()
 
-def button(x,y,hauteur,largeur,message,couleur, fonction,screen):
+def button(x,y,hauteur,largeur,message,couleur, fonction, screen):
     pygame.draw.rect(screen, couleur, pygame.Rect(x,y,largeur,hauteur)) #créer un rectangle
-    largetext = pygame.font.SysFont('Arial',25) # définie la police du texte
-    largetextsurf = largetext.render(message, True, (0,0,0)) # créer le texte
-    screen.blit(largetextsurf, (x,y)) # affiche le texte
+    largetext = pygame.font.SysFont('police.ttf',52) # définie la police du texte
+    largetextsurf = largetext.render(message, True, (120, 180,250)) # créer le texte
+    screen.blit(largetextsurf, (x,y+20)) # affiche le texte
     return (x, y, x+largeur, y+hauteur, fonction) #renvoie les coordonées du bouton et la fonction qu'il devra éxécuter
 
 def game(screen,resolution):
@@ -79,16 +80,31 @@ def game(screen,resolution):
             jumper_rect = self.get_rect() #obtient le rect du jumper
             return jumper_rect.colliderect(rect) #verifie la collision
 
-    class breakable_obj(): #cree une classe pour tout objet rebondissant
-        def __init__(self, loc): #initie grace aux coordonées
-            self.loc = loc # recupere les coordonnées
-        def render(self, surf, scroll, image):#affiche grace a la surface (surf) et au scroll(camera)
-            surf.blit(image, (self.loc[0]-scroll[0], self.loc[1]-scroll[1])) #affiche le jumper
-        def get_rect(self):#obtient le rect
-            return pygame.Rect(self.loc[0], self.loc[1], JUMPER_WIDTH, JUMPER_HEIGHT )
-        def collision_test(self, rect):#test de collision avec un rect mis en argument
-            caisse_rect = self.get_rect() #obtient le rect du jumper
-            return caisse_rect.colliderect(rect) #verifie la collision
+    image_pnj = pygame.image.load('pnj_1.png').convert_alpha()
+    class Dialogbox ():
+        X_POSITION = 0
+        Y_POSITION = 290
+        def __init__(self, texts):
+            self.box = pygame.image.load('dialog_box.png').convert_alpha()
+            self.box = pygame.transform.scale(self.box, (600, 100))
+            self.texts = texts
+            self.text_index = 0
+            self.font = pygame.font.Font('police.ttf', 18)
+            self.reading = True
+
+        def render(self, screen):
+            if self.reading:
+                screen.blit(self.box, (self.X_POSITION, self.Y_POSITION))
+                text = self.font.render(self.texts[self.text_index], False, (0, 0, 0))
+                screen.blit(text, (self.X_POSITION +20, self.Y_POSITION))
+        def next_text(self):
+            self.text_index += 1
+
+            if self.text_index >= len(self.texts):
+                self.reading = False
+
+    game_over_image = pygame.image.load('game_over.png').convert_alpha()
+    game_over_image = pygame.transform.scale(game_over_image, (1200, 800))
 
     shoot_image = pygame.image.load('shoot.png').convert_alpha() #charge image tir
 
@@ -112,7 +128,7 @@ def game(screen,resolution):
     pv = 150 #initialise les pv
     jauge_vie = [20, 20, 150, 10] #initialise la position de la barre de vie
 
-
+    sound_game_over = pygame.mixer.Sound('son_go.mp3') #################################################### est ce que le bug des lags viendrait pas des canaux de son ?
     jump_sound = pygame.mixer.Sound('sons/jump.wav') #charge le son de saut
     grass_sounds = [pygame.mixer.Sound('sons/grass_0.wav'), pygame.mixer.Sound('sons/grass_1.wav')] #charge les sons de pas
     grass_sounds[0].set_volume(0.2) #met les sons de pas de la liste grass_sounds à 20%
@@ -171,7 +187,7 @@ def game(screen,resolution):
 
     player_rect = pygame.Rect(128, 50, 32, 55) #taille de la hitbox, a voir dans le futur pour mettre ça en variable
 
-    game_map = load_map('mapversion2') #pas beson de mettre .txt
+    game_map = load_map('mapversion4') #pas beson de mettre .txt
 
     background_objects = [[0.25,[240,20,140,800]],[0.25,[560,60,80,800]],[0.5,[60,80,80,800]],[0.5,[260,180,200,800]],[0.5,[600,160,240,800]]] # garder l'ordre croissant dans les multiplicateurs 0.25,...
 
@@ -201,7 +217,7 @@ def game(screen,resolution):
         hit_list = collision_test(rect, tiles)
         for tile in hit_list:
             if movement[1] > 0:
-                rect.bottom = tile.top
+                rect.bottom  = tile.top
                 collision_types['bottom']=True
             elif movement[1] < 0:
                 rect.top = tile.bottom
@@ -244,10 +260,12 @@ def game(screen,resolution):
     enemy_list=[] #crée une liste d'ennemis
 
     for spawn in spawn_enemy_list:  # pour chaque coordonnées de spawn de la liste
-        enemy = Enemy(spawn[0], spawn[1], (ENEMY_WIDTH, ENEMY_HEIGHT), enemy_image, 1)  # creer un ennemi a ces coordonnées
+        enemy = Enemy(spawn[0], spawn[1]-6, (ENEMY_WIDTH, ENEMY_HEIGHT), enemy_image, 1)  # creer un ennemi a ces coordonnées
         enemy_list.append(enemy)  # l'ajouter a la liste d'ennemis
     keys = 0
 
+    dialogs = []
+    dialogbox = Dialogbox(('Salutations etranger,', "merci de m'avoir libere tu es mon sauveur.", 'Depuis que le royaume de GLANDU a ete sauvagement attaque par', 'le DEMON ECUREUIL,', 'tout le peuple gland est en danger', 'aide-nous !'))
 
     ##############################################################################################################################################################################
     while True: #boucle du jeu
@@ -257,6 +275,16 @@ def game(screen,resolution):
         scroll[1] = int(scroll[1])
         tile_u = [0, 0, 0, 0]
         tile_rects = []
+
+        if pv <= 0:
+            sound_game_over.play()
+            pygame.draw.rect(display, (0, 0, 0), (0, 0, 1300, 800))
+            screen.blit(game_over_image, (138, -50, 1300, 800))
+            pygame.display.flip()
+            pygame.mixer.music.pause()
+            time.sleep(5)
+            pygame.quit()
+
 
         for tile in tile_rects:
             tile_u = tile
@@ -335,14 +363,16 @@ def game(screen,resolution):
                         row[x] = '0'
                         keys -= 1
                         pass
-                if tile != '0' and tile !='5' and tile!='7' and tile != '8': #pour toute tuile qui n'est pas de l'air ou un ennemi, ajouter a la liste des solides
+                if tile =='a':
+                    display.blit(image_pnj, (x * TILE_SIZE - scroll[0], y * TILE_SIZE - scroll[1], TILE_SIZE, TILE_SIZE))
+                    if player_rect.colliderect((x * TILE_SIZE , y * TILE_SIZE , TILE_SIZE, TILE_SIZE)):
+                        dialogbox.render(display)
+                if tile != '0' and tile !='5' and tile!='7' and tile != '8' and tile != 'a': #pour toute tuile qui n'est pas de l'air ou un ennemi, ajouter a la liste des solides
                     tile_rects.append(pygame.Rect(x*TILE_SIZE, y*TILE_SIZE, TILE_SIZE, TILE_SIZE))
                     for projectile in projectile_groupe: #si un projectile touche un bloc il disparait
                         if projectile.rect.colliderect((x * TILE_SIZE - scroll[0], y * TILE_SIZE - scroll[1], TILE_SIZE, TILE_SIZE)):
                             projectile_groupe.remove(projectile)
-                    for enemy in enemy_list: #si un ennemi touche un bloc il fait demi-tour
-                            if enemy.rect.colliderect((x * TILE_SIZE , y * TILE_SIZE , TILE_SIZE, TILE_SIZE)):
-                                enemy.direction = -enemy.direction
+
 
 
                 x+=1#changer de case
@@ -459,6 +489,13 @@ def game(screen,resolution):
                     t1 = time.time()#lance timer entre pressée et relachée
                 if event.key == pygame.K_DOWN:
                     player_y_momentum += 10 #dash vers le bas
+                if event.key == pygame.K_i:
+                    in_menu = True # ????
+
+            if event.type == MOUSEBUTTONDOWN:
+                dialogbox.next_text()
+                pass
+
 
 
             if event.type == KEYUP:#si une touche est relachée
@@ -469,6 +506,7 @@ def game(screen,resolution):
                 if event.key == pygame.K_SPACE:#si c espace
                     t2 = time.time()#finit le timer
                     joueur_a_tire = True#joueur tire
+
 
         if joueur_a_tire: #si la touche de tir est relachée
             if len(projectile_groupe) < tir_autorise and delta_temps > 0.05: #si le nombre de projectiles affichés a l'ecran est inferieur au nombre de tir autorisé et deltatemps superieur a 0.05s
@@ -486,15 +524,27 @@ def game(screen,resolution):
 
         for enemy in enemy_list: #pour chaque ennemi dans la lioste d'ennemis
             enemy.x += 1 * enemy.direction #ajouter 1 a la pos x de l'ennemi
-            enemy.rect[0] += 1* enemy.direction #actualiser l'ennemi rect en ajoutant 1 aussi
+            enemy.rect[0] = enemy.x #actualiser l'ennemi rect en ajoutant 1 aussi
             enemy.y += 0 #ajouter 1 a la pos y de l'ennemi
-            enemy.rect[1] += 0 #actualiser l'ennemi rect en ajoutant 1 aussi
-            enemy.render(display, scroll ) #afficher l'ennemi
+            enemy.rect[1] = enemy.y #actualiser l'ennemi rect en ajoutant 1 aussi
+            enemy.render(display, scroll) #afficher l'ennemi
+            enemy.rect, enemy.collisions = move(enemy.rect, (enemy.direction, 0), tile_rects) #si l'ennemi touche un mur il rebondit
+            if enemy.collisions['right']:
+                enemy.direction = -enemy.direction
+            if enemy.collisions['left']:
+                enemy.direction = -enemy.direction
+            '''if enemy.collisions['bottom'] == False:
+                enemy.direction = -enemy.direction'''
             if player_rect.colliderect((enemy.x , enemy.y, ENEMY_WIDTH, ENEMY_HEIGHT)): #si le joueur touche un ennemi
                 pv -= 1 #il perd des pv
                 pass #il n'en perd pas a l'infini
             if enemy.vie < 0:
                 enemy_list.remove(enemy) #fait mourir l'ennemi
+
+        #dialogs.append(('Bonjour'))
+        '''dialogbox.render(display)'''
+
+
 
         surf = pygame.transform.scale(display,resolution)
         screen.blit(surf, (0, 0)) #afficher a l'ecran le format modifié
@@ -503,16 +553,16 @@ def game(screen,resolution):
 
 def menu(resolution, screen, fullscreen):
     inmenu = True # le jouer est dans le menu
-    background = pygame.image.load('Image_Menu/background.jpg') # charge l'image de fond
+    background = pygame.image.load('Image_Menu/menu.png') # charge l'image de fond
     background = background.convert_alpha()
     background = pygame.transform.scale(background, resolution) #dimensionne l'image de fond à la taille de l'écran
 
     while inmenu:
         screen.blit(background, (0,0)) # affiche le fond
 
-        poitionButton = button(resolution[0]/2 -100 , resolution[1]/2 - 25, 50, 200, "Jouer", (255, 0, 0), "game(screen,resolution)",screen) #créer et affiche le bouton jouer
-        positionButton2 = button(resolution[0]/2 - 100, resolution[1]/2 + 50 , 50, 200, "Quitter", (255,0,0),"pygame.quit()",screen) #créer et affiche le bouton quitter
-        positionButton3 = button(resolution[0] / 2 - 100, resolution[1] / 2 + 125, 50, 200, "Pleine Ecran", (255, 0, 0),"changeFullscreen(fullscreen)",screen)  # créer et affiche le bouton quitter
+        poitionButton = button(resolution[0]/2 -125 , resolution[1]/2 - 75, 75, 300, "         Jouer", (3, 30, 70), "game(screen,resolution)", screen) #créer et affiche le bouton jouer
+        positionButton2 = button(resolution[0]/2 - 125, resolution[1]/2 + 25 , 75, 300, "        Quitter", (3,30,70),"pygame.quit()", screen) #créer et affiche le bouton quitter
+        positionButton3 = button(resolution[0] / 2 - 125, resolution[1] / 2 + 125, 75, 300, "     Plein Ecran", (3,30,70),"changeFullscreen(fullscreen)", screen)  # créer et affiche le bouton quitter
 
 
         for event in pygame.event.get():#boucle d'evenement d'entrée

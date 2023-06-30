@@ -23,6 +23,7 @@ class Enemy(pygame.sprite.Sprite):
         self.attaque = 10
         self.enemy_image = image
         self.movement = [0, 0]
+        self.collision = {}
 
     def render(self, surf, scroll):  # affiche
         surf.blit(self.enemy_image, (self.x - scroll[0], self.y- scroll[1]))
