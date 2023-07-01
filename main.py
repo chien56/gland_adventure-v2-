@@ -53,17 +53,17 @@ def button(x,y,hauteur,largeur,message,couleur, fonction, screen):
 
 def game(screen,resolution):
     #enemy_image = pygame.image.load('vivant_0.png').convert_alpha() #charge image ennemi
-    caisse_image = pygame.image.load('caisse .png').convert_alpha() #charge image caisse
-    key_image = pygame.image.load('key.png').convert_alpha()#charge image clé
+    caisse_image = pygame.image.load('images terrain/caisse .png').convert_alpha() #charge image caisse
+    key_image = pygame.image.load('images terrain/key.png').convert_alpha()#charge image clé
 
 
     grass_image = pygame.image.load('images terrain/grass.png').convert_alpha() #charge image herbe
     dirt_image = pygame.image.load('images terrain/dirt.png').convert_alpha() #charge image terre
     stone_image = pygame.image.load('images terrain/stone.png').convert_alpha() #charge image pierre
-    pics_image = pygame.image.load('pics.png').convert_alpha()#charge image pics
-    door_image = pygame.image.load('door.png').convert_alpha()#charge image porte
+    pics_image = pygame.image.load('images terrain/pics.png').convert_alpha()#charge image pics
+    door_image = pygame.image.load('images terrain/door.png').convert_alpha()#charge image porte
 
-    jumper_image = pygame.image.load('champi.png').convert_alpha() #charge image champi rebondissant
+    jumper_image = pygame.image.load('images terrain/champi.png').convert_alpha() #charge image champi rebondissant
     JUMPER_WIDTH = jumper_image.get_width() #recupere la largeur du champi
     JUMPER_HEIGHT = jumper_image.get_height() #recupere la hauteur du champi
 
@@ -80,7 +80,7 @@ def game(screen,resolution):
             jumper_rect = self.get_rect() #obtient le rect du jumper
             return jumper_rect.colliderect(rect) #verifie la collision
 
-    image_pnj = pygame.image.load('pnj_1.png').convert_alpha()
+    image_pnj = pygame.image.load('images terrain/pnj_1.png').convert_alpha()
     class Dialogbox ():
         X_POSITION = 0
         Y_POSITION = 290
@@ -183,9 +183,13 @@ def game(screen,resolution):
     player_frame = 0
     player_flip = False
 
-    animation_data_enemy = {}
-    animation_data_enemy['vivant']=load_animations('animations ennemis/araignée/vivant', [4, 4])
-    animation_data_enemy['degat'] = load_animations('animations ennemis/araignée/degat', [16])
+    animation_data_scarabee = {}
+    animation_data_scarabee['vivant'] = load_animations('animations ennemis/scarabee/vivant', [4, 4, 4])
+    animation_data_scarabee['degat'] = load_animations('animations ennemis/araignée/degat', [16])
+
+    animation_data_araignee = {}
+    animation_data_araignee['vivant']=load_animations('animations ennemis/araignée/vivant', [4, 4])
+    animation_data_araignee['degat'] = load_animations('animations ennemis/araignée/degat', [16])
 
     enemy_frame = 0
 
@@ -252,12 +256,15 @@ def game(screen,resolution):
     direction = 1
 
     spawn_araignee_list = [] #crée la liste des coordonnées de spawn de chaque ennemi
+    spawn_scarabee_list = []
     y=0 #numero de ligne
     for row in game_map:#pour chaque ligne
         x=0 #numero de case
         for tile in row:#pour chaque case de la ligne
             if tile == '5':
                 spawn_araignee_list.append((x*TILE_SIZE, y*TILE_SIZE)) #permet d'obtenir les co de spawn des ennemi d'apres la map
+            if tile == 'b':
+                spawn_scarabee_list.append((x*TILE_SIZE, y*TILE_SIZE))
             x+=1
         y+=1
 
@@ -268,6 +275,10 @@ def game(screen,resolution):
     for spawn in spawn_araignee_list:  # pour chaque coordonnées de spawn de la liste
         enemy = Enemy(spawn[0], spawn[1]-6, (ENEMY_WIDTH, ENEMY_HEIGHT), 1, 'araignee')  # creer un ennemi a ces coordonnées
         enemy_list.append(enemy)  # l'ajouter a la liste d'ennemis
+    for spawn in spawn_scarabee_list:  # pour chaque coordonnées de spawn de la liste
+        enemy = Enemy(spawn[0], spawn[1]-6, (ENEMY_WIDTH, ENEMY_HEIGHT), 1, 'scarabee')  # creer un ennemi a ces coordonnées
+        enemy_list.append(enemy)  # l'ajouter a la liste d'ennemis
+
     keys = 0
 
     dialogs = []
@@ -276,7 +287,9 @@ def game(screen,resolution):
     image_arriere_plan = pygame.image.load('cave_arriere.png').convert_alpha()
     image_arriere_plan = pygame.transform.scale(image_arriere_plan, (600, 400))
     arriere_plan_rect = [0, 0, 600, 400]
-    ##############################################################################################################################################################################
+    ###################################################################################################################################################################################
+    ###################################################################################################################################################################################
+    ###################################################################################################################################################################################
     while True: #boucle du jeu
         display.fill((80, 40, 0)) #couleur de fond d'écran
         scroll = true_scroll.copy()
@@ -379,7 +392,11 @@ def game(screen,resolution):
                     display.blit(image_pnj, (x * TILE_SIZE - scroll[0], y * TILE_SIZE - scroll[1] -12, TILE_SIZE, TILE_SIZE))
                     if player_rect.colliderect((x * TILE_SIZE , y * TILE_SIZE , TILE_SIZE, TILE_SIZE)):
                         dialogbox.render(display)
-                if tile != '0' and tile !='5' and tile!='7' and tile != '8' and tile != 'a': #pour toute tuile qui n'est pas de l'air ou un ennemi, ajouter a la liste des solides
+                if tile == 'b':#case5 donner les coordonnées pour les ennemis
+                    #display.blit(enemy_image, (x * TILE_SIZE - scroll[0], y * TILE_SIZE - scroll[1]))
+                    spawn_enemy = [x * TILE_SIZE, y * TILE_SIZE]  #donne les co de spawn de l'ennemi d'apres la map
+                    spawn_scarabee_list.append(spawn_enemy)
+                if tile != '0' and tile !='5' and tile!='7' and tile != '8' and tile != 'a' and tile != 'b': #pour toute tuile qui n'est pas de l'air ou un ennemi, ajouter a la liste des solides
                     tile_rects.append(pygame.Rect(x*TILE_SIZE, y*TILE_SIZE, TILE_SIZE, TILE_SIZE))
                     for projectile in projectile_groupe: #si un projectile touche un bloc il disparait
                         if projectile.rect.colliderect((x * TILE_SIZE - scroll[0], y * TILE_SIZE - scroll[1], TILE_SIZE, TILE_SIZE)):
@@ -557,26 +574,43 @@ def game(screen,resolution):
         pygame.draw.rect(display, (255, 0, 0), (jauge_vie))  # dessine un rectangle rouge aux co de la barre de vie
         pygame.draw.rect(display, (0, 255, 0), (jauge_vie[0], jauge_vie[1], pv, jauge_vie[3]))  # dessine rectangle vert
 
-        for enemy in enemy_list: #pour chaque ennemi dans la lioste d'ennemis
-            if enemy_frame >= len(animation_data_enemy[enemy.etat]):  # boucle d'animation
-                enemy_frame = 0  # repart a 0
-            enemy_image_id = animation_data_enemy[enemy.etat][enemy_frame]  # l'image a afficher depend de l'action et de la frame ou en est le joueur
 
-            enemy_image = animation_frames[enemy_image_id]  # donne l'image du joueur actuelle
-            enemy.render(display, scroll, enemy_image)  # afficher l'ennemi
+        for enemy in enemy_list: #pour chaque ennemi dans la lioste d'ennemis
 
             if enemy.type == 'araignee':
+                if enemy_frame >= len(animation_data_araignee[enemy.etat]):  # boucle d'animation
+                    enemy_frame = 0  # repart a 0
+                araignee_image_id = animation_data_araignee[enemy.etat][
+                    enemy_frame]  # l'image a afficher depend de l'action et de la frame ou en est le joueur
+
+                araignee_image = animation_frames[araignee_image_id]  # donne l'image du joueur actuelle
+                enemy.render(display, scroll, araignee_image)  # afficher l'ennemi
+
                 enemy.x += 1 * enemy.direction #ajouter 1 a la pos x de l'ennemi
                 enemy.rect[0] = enemy.x #actualiser l'ennemi rect en ajoutant 1 aussi
                 enemy.y += 0 #ajouter 1 a la pos y de l'ennemi
                 enemy.rect[1] = enemy.y #actualiser l'ennemi rect en ajoutant 1 aussi
                 enemy.rect, enemy.collisions = move(enemy.rect, (enemy.direction, 0),tile_rects)  # si l'ennemi touche un mur il rebondit
 
+            if enemy.type == 'scarabee':
+                if enemy_frame >= len(animation_data_scarabee[enemy.etat]):  # boucle d'animation
+                    enemy_frame = 0  # repart a 0
+                scarabee_image_id = animation_data_scarabee[enemy.etat][enemy_frame]  # l'image a afficher depend de l'action et de la frame ou en est le joueur
 
-                if enemy.collisions['right']:
-                    enemy.direction = -enemy.direction
-                if enemy.collisions['left']:
-                    enemy.direction = -enemy.direction
+                scarabee_image = animation_frames[scarabee_image_id]  # donne l'image du joueur actuelle
+                enemy.render(display, scroll, scarabee_image)  # afficher l'ennemi
+
+                enemy.x += 3 * enemy.direction  # ajouter 1 a la pos x de l'ennemi
+                enemy.rect[0] = enemy.x  # actualiser l'ennemi rect en ajoutant 1 aussi
+                enemy.y += 0  # ajouter 1 a la pos y de l'ennemi
+                enemy.rect[1] = enemy.y  # actualiser l'ennemi rect en ajoutant 1 aussi
+                enemy.rect, enemy.collisions = move(enemy.rect, (enemy.direction, 0),tile_rects)  # si l'ennemi touche un mur il rebondit
+
+
+            if enemy.collisions['right']:
+                enemy.direction = -enemy.direction
+            if enemy.collisions['left']:
+                enemy.direction = -enemy.direction
             '''if enemy.collisions['bottom'] == False:
                 enemy.direction = -enemy.direction'''
             if player_rect.colliderect((enemy.x , enemy.y, ENEMY_WIDTH, ENEMY_HEIGHT)): #si le joueur touche un ennemi

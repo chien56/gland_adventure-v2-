@@ -22,6 +22,9 @@ class Enemy(pygame.sprite.Sprite):
         self.collision = {}
 
     def render(self, surf, scroll, image):  # affiche
+        if self.direction == -1:
+            image = pygame.transform.flip(image, True, False)
+
         surf.blit(image, (self.x - scroll[0], self.y- scroll[1]))
         if self.vie >= 0:
             pygame.draw.rect(surf, (255, 0, 0), (self.rect.x + 13, self.rect.y - 20, 50, 10))
