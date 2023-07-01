@@ -46,13 +46,13 @@ def text_objects(text, font):
 
 def button(x,y,hauteur,largeur,message,couleur, fonction, screen):
     pygame.draw.rect(screen, couleur, pygame.Rect(x,y,largeur,hauteur)) #créer un rectangle
-    largetext = pygame.font.SysFont('police.ttf',52) # définie la police du texte
+    largetext = pygame.font.SysFont('police.ttf',72) # définie la police du texte
     largetextsurf = largetext.render(message, True, (120, 180,250)) # créer le texte
     screen.blit(largetextsurf, (x,y+20)) # affiche le texte
     return (x, y, x+largeur, y+hauteur, fonction) #renvoie les coordonées du bouton et la fonction qu'il devra éxécuter
 
 def game(screen,resolution):
-    enemy_image = pygame.image.load('enemy.png').convert_alpha() #charge image ennemi
+    #enemy_image = pygame.image.load('vivant_0.png').convert_alpha() #charge image ennemi
     caisse_image = pygame.image.load('caisse .png').convert_alpha() #charge image caisse
     key_image = pygame.image.load('key.png').convert_alpha()#charge image clé
 
@@ -183,6 +183,12 @@ def game(screen,resolution):
     player_frame = 0
     player_flip = False
 
+    animation_data_enemy = {}
+    animation_data_enemy['vivant']=load_animations('animations ennemis/araignée/vivant', [4, 4])
+    animation_data_enemy['degat'] = load_animations('animations ennemis/araignée/degat', [16])
+
+    enemy_frame = 0
+
     grass_sound_timer = 0
 
     player_rect = pygame.Rect(64, 50, 32, 55) #taille de la hitbox, a voir dans le futur pour mettre ça en variable
@@ -245,36 +251,41 @@ def game(screen,resolution):
     tir_autorise = 5
     direction = 1
 
-    spawn_enemy_list = [] #crée la liste des coordonnées de spawn de chaque ennemi
+    spawn_araignee_list = [] #crée la liste des coordonnées de spawn de chaque ennemi
     y=0 #numero de ligne
     for row in game_map:#pour chaque ligne
         x=0 #numero de case
         for tile in row:#pour chaque case de la ligne
             if tile == '5':
-                spawn_enemy_list.append((x*TILE_SIZE, y*TILE_SIZE)) #permet d'obtenir les co de spawn des ennemi d'apres la map
+                spawn_araignee_list.append((x*TILE_SIZE, y*TILE_SIZE)) #permet d'obtenir les co de spawn des ennemi d'apres la map
             x+=1
         y+=1
 
-    ENEMY_HEIGHT = enemy_image.get_height()
-    ENEMY_WIDTH = enemy_image.get_width()
+    ENEMY_HEIGHT = 35
+    ENEMY_WIDTH = 35
     enemy_list=[] #crée une liste d'ennemis
 
-    for spawn in spawn_enemy_list:  # pour chaque coordonnées de spawn de la liste
-        enemy = Enemy(spawn[0], spawn[1]-6, (ENEMY_WIDTH, ENEMY_HEIGHT), enemy_image, 1)  # creer un ennemi a ces coordonnées
+    for spawn in spawn_araignee_list:  # pour chaque coordonnées de spawn de la liste
+        enemy = Enemy(spawn[0], spawn[1]-6, (ENEMY_WIDTH, ENEMY_HEIGHT), 1, 'araignee')  # creer un ennemi a ces coordonnées
         enemy_list.append(enemy)  # l'ajouter a la liste d'ennemis
     keys = 0
 
     dialogs = []
     dialogbox = Dialogbox(('Salutations etranger,', "merci de m'avoir libere tu es mon sauveur.", 'Depuis que le royaume de GLANDU a ete sauvagement attaque par', 'le DEMON ECUREUIL,', 'tout le peuple gland est en danger', 'aide-nous !'))
 
+    image_arriere_plan = pygame.image.load('cave_arriere.png').convert_alpha()
+    image_arriere_plan = pygame.transform.scale(image_arriere_plan, (600, 400))
+    arriere_plan_rect = [0, 0, 600, 400]
     ##############################################################################################################################################################################
     while True: #boucle du jeu
-        display.fill((255, 128, 0)) #couleur de fond d'écran
+        display.fill((80, 40, 0)) #couleur de fond d'écran
         scroll = true_scroll.copy()
         scroll[0] = int(scroll[0])
         scroll[1] = int(scroll[1])
         tile_u = [0, 0, 0, 0]
         tile_rects = []
+
+        display.blit(image_arriere_plan, arriere_plan_rect)
 
         if pv <= 0:
             sound_game_over.play()
@@ -292,7 +303,7 @@ def game(screen,resolution):
 
         #dictionnaire_vide_ennemi = {}
         #dictionnaire_images_ennemi = self.ennemi.image_liste(self.image_ennemi, dictionnaire_vide_ennemi)
-        pygame.draw.rect(display, (255, 255, 0), (100, 150, 100, 100))#dessine soleil
+        #pygame.draw.rect(display, (255, 255, 0), (100, 150, 100, 100))#dessine soleil
 
 
         delta_temps = t2 -t1 #difference entre moment touche pressée et relachée
@@ -302,6 +313,7 @@ def game(screen,resolution):
             for projectile in projectile_groupe:
                 if projectile.rect.colliderect((enemy.x - scroll[0], enemy.y-scroll[1], ENEMY_WIDTH, ENEMY_HEIGHT)):
                     enemy.vie -= projectile.degats #fait prendre des degats a l'ennemi s'il touche un projectile
+                    enemy.etat='degat'
                     projectile_groupe.remove(projectile)
                     pass
 
@@ -312,13 +324,13 @@ def game(screen,resolution):
         true_scroll[1] += (player_rect.y - true_scroll[1] - 400//2 + 100)/20#decalage de camera en y
 
 
-        pygame.draw.rect(display, (7, 80, 75), pygame.Rect(0, 240, 600, 160)) #rectangle de background (doubler toutes les valeurs si prises du tuto)
+        '''pygame.draw.rect(display, (7, 80, 75), pygame.Rect(0, 240, 600, 160)) #rectangle de background (doubler toutes les valeurs si prises du tuto)
         for background_object in background_objects: #pour chaque objet de background
             obj_rect = pygame.Rect(background_object[1][0] - scroll[0]*background_object[0], background_object[1][1] - scroll[1]*background_object[0], background_object[1][2], background_object[1][3])#creer un rectangle aux co de l'objet
             if background_object[0] == 0.5: #si le coeff est grand
                 pygame.draw.rect(display, (14, 222, 150), obj_rect)# mettre l'objet dans une couleur foncée(ou l'inverse jsp)
             else: #sinon
-                pygame.draw.rect(display, (9, 91, 85), obj_rect)#mettre une couleur plus claire
+                pygame.draw.rect(display, (9, 91, 85), obj_rect)#mettre une couleur plus claire'''
 
 
         y=0 #numero de ligne
@@ -336,7 +348,7 @@ def game(screen,resolution):
                 if tile == '5':#case5 donner les coordonnées pour les ennemis
                     #display.blit(enemy_image, (x * TILE_SIZE - scroll[0], y * TILE_SIZE - scroll[1]))
                     spawn_enemy = [x * TILE_SIZE, y * TILE_SIZE]  #donne les co de spawn de l'ennemi d'apres la map
-                    spawn_enemy_list.append(spawn_enemy) #ajoute les co de la case a la liste des spawns d'ennemi
+                    spawn_araignee_list.append(spawn_enemy) #ajoute les co de la case a la liste des spawns d'ennemi
                     #enemy_list.append(Enemy(spawn_enemy[0], spawn_enemy[1], (35, 35), enemy_image, 1))
                 if tile == '6': #case6 affiche une caisse
                     display.blit(caisse_image, (x * TILE_SIZE - scroll[0], y * TILE_SIZE - scroll[1]))
@@ -364,7 +376,7 @@ def game(screen,resolution):
                         keys -= 1
                         pass
                 if tile =='a':
-                    display.blit(image_pnj, (x * TILE_SIZE - scroll[0], y * TILE_SIZE - scroll[1], TILE_SIZE, TILE_SIZE))
+                    display.blit(image_pnj, (x * TILE_SIZE - scroll[0], y * TILE_SIZE - scroll[1] -12, TILE_SIZE, TILE_SIZE))
                     if player_rect.colliderect((x * TILE_SIZE , y * TILE_SIZE , TILE_SIZE, TILE_SIZE)):
                         dialogbox.render(display)
                 if tile != '0' and tile !='5' and tile!='7' and tile != '8' and tile != 'a': #pour toute tuile qui n'est pas de l'air ou un ennemi, ajouter a la liste des solides
@@ -394,6 +406,19 @@ def game(screen,resolution):
         player_y_momentum += 0.6 #vitesse de chute
         if player_y_momentum > 4: #accélération de chute
             player_y_momentum -=0.6  #l'acceleration stagne a 4
+
+        if moving_right and collisions['right']:
+            air_timer = 0
+            in_wall = True
+        else:
+            in_wall = False
+
+        if moving_left and collisions['left']:
+            air_timer = 0
+            in_wall = True
+        else:
+            in_wall = False
+
 
         '''if player_movement[0]>0 and in_air==False and course_d == False and course_g ==False and immobile==False:
             course_d = True
@@ -443,6 +468,7 @@ def game(screen,resolution):
 
 
         player_frame += 1#les animations du joueurs avancent de 1 frame
+        enemy_frame +=1
 
         for jumper in jumper_objects: #pour chaque champi
 
@@ -454,6 +480,7 @@ def game(screen,resolution):
 
         if player_frame>= len(animation_database[player_action]): #boucle d'animation
             player_frame=0 #repart a 0
+
 
         player_img_id = animation_database[player_action][player_frame]#l'image a afficher depend de l'action et de la frame ou en est le joueur
 
@@ -479,12 +506,20 @@ def game(screen,resolution):
                 if event.key == K_LEFT:#si c fleche gauche
                     player_action, player_frame = change_action(player_action, player_frame, 'course')#action devient courir
                     moving_left = True#va vers la gauche
-                if event.key == K_UP:#si c fleche haut
+                if event.key == K_UP :#si c fleche haut
+
                     if air_timer < 13 : #peut sauter dans ce laps de temps, utile pour sauter apres une plateforme
                         jump_sound.play()#joue le son de saut
                         in_air=True#est en l'air
                         player_action, player_frame = change_action(player_action, player_frame, 'saut')#action devient saut
                         player_y_momentum= -11 #hauteur de saut
+                    if in_wall:
+                        direction = -direction
+                        player_rect[0] += 64*direction
+
+
+
+
                 if event.key == pygame.K_SPACE:#si la touche est espace
                     t1 = time.time()#lance timer entre pressée et relachée
                 if event.key == pygame.K_DOWN:
@@ -523,21 +558,32 @@ def game(screen,resolution):
         pygame.draw.rect(display, (0, 255, 0), (jauge_vie[0], jauge_vie[1], pv, jauge_vie[3]))  # dessine rectangle vert
 
         for enemy in enemy_list: #pour chaque ennemi dans la lioste d'ennemis
-            enemy.x += 1 * enemy.direction #ajouter 1 a la pos x de l'ennemi
-            enemy.rect[0] = enemy.x #actualiser l'ennemi rect en ajoutant 1 aussi
-            enemy.y += 0 #ajouter 1 a la pos y de l'ennemi
-            enemy.rect[1] = enemy.y #actualiser l'ennemi rect en ajoutant 1 aussi
-            enemy.render(display, scroll) #afficher l'ennemi
-            enemy.rect, enemy.collisions = move(enemy.rect, (enemy.direction, 0), tile_rects) #si l'ennemi touche un mur il rebondit
-            if enemy.collisions['right']:
-                enemy.direction = -enemy.direction
-            if enemy.collisions['left']:
-                enemy.direction = -enemy.direction
+            if enemy_frame >= len(animation_data_enemy[enemy.etat]):  # boucle d'animation
+                enemy_frame = 0  # repart a 0
+            enemy_image_id = animation_data_enemy[enemy.etat][enemy_frame]  # l'image a afficher depend de l'action et de la frame ou en est le joueur
+
+            enemy_image = animation_frames[enemy_image_id]  # donne l'image du joueur actuelle
+            enemy.render(display, scroll, enemy_image)  # afficher l'ennemi
+
+            if enemy.type == 'araignee':
+                enemy.x += 1 * enemy.direction #ajouter 1 a la pos x de l'ennemi
+                enemy.rect[0] = enemy.x #actualiser l'ennemi rect en ajoutant 1 aussi
+                enemy.y += 0 #ajouter 1 a la pos y de l'ennemi
+                enemy.rect[1] = enemy.y #actualiser l'ennemi rect en ajoutant 1 aussi
+                enemy.rect, enemy.collisions = move(enemy.rect, (enemy.direction, 0),tile_rects)  # si l'ennemi touche un mur il rebondit
+
+
+                if enemy.collisions['right']:
+                    enemy.direction = -enemy.direction
+                if enemy.collisions['left']:
+                    enemy.direction = -enemy.direction
             '''if enemy.collisions['bottom'] == False:
                 enemy.direction = -enemy.direction'''
             if player_rect.colliderect((enemy.x , enemy.y, ENEMY_WIDTH, ENEMY_HEIGHT)): #si le joueur touche un ennemi
                 pv -= 1 #il perd des pv
                 pass #il n'en perd pas a l'infini
+            if enemy.vie >= 0:
+                enemy.etat = 'vivant'
             if enemy.vie < 0:
                 enemy_list.remove(enemy) #fait mourir l'ennemi
 
@@ -560,9 +606,9 @@ def menu(resolution, screen, fullscreen):
     while inmenu:
         screen.blit(background, (0,0)) # affiche le fond
 
-        poitionButton = button(resolution[0]/2 -125 , resolution[1]/2 - 75, 75, 300, "         Jouer", (3, 30, 70), "game(screen,resolution)", screen) #créer et affiche le bouton jouer
-        positionButton2 = button(resolution[0]/2 - 125, resolution[1]/2 + 25 , 75, 300, "        Quitter", (3,30,70),"pygame.quit()", screen) #créer et affiche le bouton quitter
-        positionButton3 = button(resolution[0] / 2 - 125, resolution[1] / 2 + 125, 75, 300, "     Plein Ecran", (3,30,70),"changeFullscreen(fullscreen)", screen)  # créer et affiche le bouton quitter
+        poitionButton = button(resolution[0]/2 -175 , resolution[1]/2 - 100, 100, 400, "         Jouer", (3, 30, 70), "game(screen,resolution)", screen) #créer et affiche le bouton jouer
+        positionButton2 = button(resolution[0]/2 -175, resolution[1]/2 +25 , 100, 400, "        Quitter", (3,30,70),"pygame.quit()", screen) #créer et affiche le bouton quitter
+        positionButton3 = button(resolution[0] / 2 -175, resolution[1] / 2 + 150, 100, 400, "     Plein Ecran", (3,30,70),"changeFullscreen(fullscreen)", screen)  # créer et affiche le bouton quitter
 
 
         for event in pygame.event.get():#boucle d'evenement d'entrée

@@ -1,7 +1,7 @@
 import pygame
 
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, x, y, taille, image, direction):
+    def __init__(self, x, y, taille, direction, type):
         super().__init__()
         self.x = x
         self.y = y
@@ -11,22 +11,21 @@ class Enemy(pygame.sprite.Sprite):
         self.direction = direction
         self.etat = 'vivant'
         self.index = 0
-        self.ennemi_vivant = [pygame.Rect(156, 104, 77, 84), pygame.Rect(404, 108, 78, 77)]
-        self.ennemi_mort = [pygame.Rect(158, 397, 81, 85), pygame.Rect(386, 390, 78, 95), pygame.Rect(625, 387, 77, 101),
-                            pygame.Rect(846, 400, 67, 90), pygame.Rect(1063, 414, 64, 77), pygame.Rect(1272, 420, 67, 76),
-                            pygame.Rect(1497, 419, 65, 66), pygame.Rect(159, 650, 67, 77), pygame.Rect(388, 654, 70, 70),
-                            pygame.Rect(1500, 800, 0, 1)]
         self.vie = 35
         self.degats_recus = 0
         self.droite = True
         self.gauche = False
         self.attaque = 10
-        self.enemy_image = image
+        self.type = type
+
         self.movement = [0, 0]
         self.collision = {}
 
-    def render(self, surf, scroll):  # affiche
-        surf.blit(self.enemy_image, (self.x - scroll[0], self.y- scroll[1]))
+    def render(self, surf, scroll, image):  # affiche
+        surf.blit(image, (self.x - scroll[0], self.y- scroll[1]))
+        if self.vie >= 0:
+            pygame.draw.rect(surf, (255, 0, 0), (self.rect.x + 13, self.rect.y - 20, 50, 10))
+            pygame.draw.rect(surf, (0, 0, 255), (self.rect.x + 13, self.rect.y - 20, self.vie*1.45, 10))
 
     def afficher(self, surface, dict):
 
