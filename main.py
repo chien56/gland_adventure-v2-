@@ -195,7 +195,7 @@ def game(screen,resolution):
 
     grass_sound_timer = 0
 
-    player_rect = pygame.Rect(64, 50, 32, 55) #taille de la hitbox, a voir dans le futur pour mettre ça en variable
+    player_rect = pygame.Rect(64, 100, 32, 55) #taille de la hitbox, a voir dans le futur pour mettre ça en variable
 
     game_map = load_map('mapversion4') #pas beson de mettre .txt
 
@@ -287,6 +287,16 @@ def game(screen,resolution):
     image_arriere_plan = pygame.image.load('cave_arriere.png').convert_alpha()
     image_arriere_plan = pygame.transform.scale(image_arriere_plan, (600, 400))
     arriere_plan_rect = [0, 0, 600, 400]
+
+    fps =60
+
+    inventory_open = False
+    inventory_tile = pygame.image.load('case_inventaire.png').convert_alpha()
+    inventory = load_map('inventory')
+
+
+
+
     ###################################################################################################################################################################################
     ###################################################################################################################################################################################
     ###################################################################################################################################################################################
@@ -299,6 +309,8 @@ def game(screen,resolution):
         tile_rects = []
 
         display.blit(image_arriere_plan, arriere_plan_rect)
+
+
 
         if pv <= 0:
             sound_game_over.play()
@@ -401,6 +413,7 @@ def game(screen,resolution):
                     for projectile in projectile_groupe: #si un projectile touche un bloc il disparait
                         if projectile.rect.colliderect((x * TILE_SIZE - scroll[0], y * TILE_SIZE - scroll[1], TILE_SIZE, TILE_SIZE)):
                             projectile_groupe.remove(projectile)
+
 
 
 
@@ -517,13 +530,13 @@ def game(screen,resolution):
                     pygame.mixer.music.fadeout(1000)#eteindre la musique en 1 seconde(1000ms)
                 if event.key == K_x:#si c x
                     pygame.mixer.music.play(-1)#allumer la musique a l'infini
-                if event.key == K_RIGHT:#si c fleche droite
+                if event.key == K_d:#si c fleche droite
                     player_action, player_frame = change_action(player_action, player_frame, 'course')#action devient courir
                     moving_right = True #va vers la droite
-                if event.key == K_LEFT:#si c fleche gauche
+                if event.key == K_q:#si c fleche gauche
                     player_action, player_frame = change_action(player_action, player_frame, 'course')#action devient courir
                     moving_left = True#va vers la gauche
-                if event.key == K_UP :#si c fleche haut
+                if event.key == K_z :#si c fleche haut
 
                     if air_timer < 13 : #peut sauter dans ce laps de temps, utile pour sauter apres une plateforme
                         jump_sound.play()#joue le son de saut
@@ -534,12 +547,15 @@ def game(screen,resolution):
                         direction = -direction
                         player_rect[0] += 64*direction
 
+                if event.key == K_f:
+                    inventory_open = True
+
 
 
 
                 if event.key == pygame.K_SPACE:#si la touche est espace
                     t1 = time.time()#lance timer entre pressée et relachée
-                if event.key == pygame.K_DOWN:
+                if event.key == pygame.K_s:
                     player_y_momentum += 10 #dash vers le bas
                 if event.key == pygame.K_i:
                     in_menu = True # ????
@@ -551,14 +567,15 @@ def game(screen,resolution):
 
 
             if event.type == KEYUP:#si une touche est relachée
-                if event.key == K_RIGHT:#si c fleche droite
+                if event.key == K_d:#si c fleche droite
                     moving_right = False#ne va plus a droite
-                if event.key == K_LEFT: #si c fleche gauche
+                if event.key == K_q: #si c fleche gauche
                     moving_left = False#ne va plus a gauche
                 if event.key == pygame.K_SPACE:#si c espace
                     t2 = time.time()#finit le timer
                     joueur_a_tire = True#joueur tire
-
+                if event.key == K_f:
+                    inventory_open = False
 
         if joueur_a_tire: #si la touche de tir est relachée
             if len(projectile_groupe) < tir_autorise and delta_temps > 0.05: #si le nombre de projectiles affichés a l'ecran est inferieur au nombre de tir autorisé et deltatemps superieur a 0.05s
@@ -624,12 +641,33 @@ def game(screen,resolution):
         #dialogs.append(('Bonjour'))
         '''dialogbox.render(display)'''
 
+        if inventory_open:
+            if event.type == MOUSEBUTTONDOWN:  # si clique gauche
+                pos = pygame.mouse.get_pos()  # récupère la position du clic
 
+            font = pygame.font.Font('police.ttf', 15)
+            title = pygame.draw.rect(display, '#2f2121', pygame.Rect(20, 80, 96, 20))#titre
+            title2 = pygame.draw.rect(display, (255,255,255), pygame.Rect(20, 80, 96, 20), width=1)#contours
+            text = font.render('INVENTAIRE', False, (255, 255, 255))
+            display.blit(text, (21, 82))
+            y = 0
+            for row in inventory:
+                x=0
+                for tile in row:
+                    display.blit(inventory_tile, (x * TILE_SIZE +20, y * TILE_SIZE +100, TILE_SIZE, TILE_SIZE))
+
+                    x +=1
+                y+=1
+            y = 0
+
+
+
+            time.sleep(8 / fps)
 
         surf = pygame.transform.scale(display,resolution)
         screen.blit(surf, (0, 0)) #afficher a l'ecran le format modifié
         pygame.display.update()#rafraichit l'ecran
-        clock.tick(60)#maintient 60 fps
+        clock.tick(fps)#maintient 60 fps
 
 def menu(resolution, screen, fullscreen):
     inmenu = True # le jouer est dans le menu
