@@ -427,9 +427,6 @@ def game(screen,resolution):
             y+=1 #change de ligne
 
 
-        for tile in tile_rects:
-            if len(tile_rects)>300:
-                tile_rects.remove(tile)
 
         player_movement = [0,0]# "vitesse" horizontale et verticale
         if moving_right : #si joueur va a droite
@@ -673,6 +670,8 @@ def game(screen,resolution):
 
             time.sleep(8 / fps)
 
+        '''options = button(100, 50, 50, 50, 'Options', (0, 0, 0), "in_menu = True", screen)
+        screen.blit(display, options)'''
         surf = pygame.transform.scale(display,resolution)
         screen.blit(surf, (0, 0)) #afficher a l'ecran le format modifié
         pygame.display.update()#rafraichit l'ecran
@@ -680,7 +679,7 @@ def game(screen,resolution):
 
 def menu(resolution, screen, fullscreen):
     inmenu = True # le jouer est dans le menu
-    background = pygame.image.load('Image_Menu/menu.png') # charge l'image de fond
+    background = pygame.image.load('Image_Menu/menu.png').convert_alpha() # charge l'image de fond
     background = background.convert_alpha()
     background = pygame.transform.scale(background, resolution) #dimensionne l'image de fond à la taille de l'écran
 
