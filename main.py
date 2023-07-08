@@ -97,6 +97,11 @@ def game(screen,resolution):
                 screen.blit(self.box, (self.X_POSITION, self.Y_POSITION))
                 text = self.font.render(self.texts[self.text_index], False, (0, 0, 0))
                 screen.blit(text, (self.X_POSITION +20, self.Y_POSITION+20))
+
+                title = pygame.draw.rect(screen, '#666666', pygame.Rect(540, 350, 20, 20))  # titre
+                title2 = pygame.draw.rect(screen, (0, 0,0), pygame.Rect(540, 350, 20, 20), width=1)  # contours
+                texte = self.font.render('E', False, (0,0, 0))
+                screen.blit(texte, (542, 352))
         def next_text(self):
             self.text_index += 1
 
@@ -415,12 +420,16 @@ def game(screen,resolution):
                             projectile_groupe.remove(projectile)
 
 
+            ###########le probleme des lags vient surement de la surcharge de tile_rects[]
 
 
                 x+=1#changer de case
             y+=1 #change de ligne
 
 
+        for tile in tile_rects:
+            if len(tile_rects)>300:
+                tile_rects.remove(tile)
 
         player_movement = [0,0]# "vitesse" horizontale et verticale
         if moving_right : #si joueur va a droite
@@ -560,9 +569,9 @@ def game(screen,resolution):
                 if event.key == pygame.K_i:
                     in_menu = True # ????
 
-            if event.type == MOUSEBUTTONDOWN:
-                dialogbox.next_text()
-                pass
+                if event.key == pygame.K_e:
+                    dialogbox.next_text()
+                    pass
 
 
 
