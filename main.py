@@ -704,6 +704,10 @@ def game(screen,resolution):
             display.blit(feuille_image, (player_rect.x-scroll[0], player_rect.y-scroll[1]-32 , 32, 32))
             player_y_momentum=1
 
+        font = pygame.font.Font('police.ttf', 15)
+        texte = font.render('Cles = ' + str(keys), False, (255, 255, 255))
+        display.blit(texte, (20, 40))
+
         '''options = button(100, 50, 50, 50, 'Options', (0, 0, 0), "in_menu = True", screen)
         screen.blit(display, options)'''
         surf = pygame.transform.scale(display,resolution)
