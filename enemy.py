@@ -9,7 +9,7 @@ class Enemy(pygame.sprite.Sprite):
         self.rect = pygame.Rect(self.x, self.y, self.taille[0], self.taille[1])
         self.saut = 0
         self.direction = direction
-        self.etat = 'vivant'
+        self.etat = 'vivant'+type
         self.index = 0
         self.vie = 35
         self.degats_recus = 0
@@ -38,7 +38,7 @@ class Enemy(pygame.sprite.Sprite):
             self.index = 0
             if self.etat == 'mort':
                 self.index = 9
-        if self.etat == 'vivant':
+        if self.etat == 'vivantscarabee':
             pygame.draw.rect(surface, (255, 0, 0), (self.rect.x + 13, self.rect.y - 20, 50, 10))
             pygame.draw.rect(surface, (0, 0, 255), (self.rect.x + 13, self.rect.y - 20, self.vie*1.45, 10))
 
@@ -56,7 +56,7 @@ class Enemy(pygame.sprite.Sprite):
             image_ennemi = pygame.transform.scale(image_ennemi, (78, 84))
             self.ennemi_vivant.append(image_ennemi)
 
-        dict['vivant'] = self.ennemi_vivant
+        dict['vivantscarabee'] = self.ennemi_vivant
 
         for image_mort in self.ennemi_mort:
             image_rect = self.ennemi_mort.pop(0)

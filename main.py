@@ -52,7 +52,7 @@ def button(x,y,hauteur,largeur,message,couleur, fonction, screen):
     return (x, y, x+largeur, y+hauteur, fonction) #renvoie les coordonées du bouton et la fonction qu'il devra éxécuter
 
 def game(screen,resolution):
-    #enemy_image = pygame.image.load('vivant_0.png').convert_alpha() #charge image ennemi
+    #enemy_image = pygame.image.load('vivantaraignee_0.png').convert_alpha() #charge image ennemi
     caisse_image = pygame.image.load('images terrain/caisse .png').convert_alpha() #charge image caisse
     key_image = pygame.image.load('images terrain/key.png').convert_alpha()#charge image clé
 
@@ -183,21 +183,28 @@ def game(screen,resolution):
             frame=0
         return action_var, frame
 
+    animation_data_muridax = {}
+    animation_data_muridax['immobile_1'] = load_animations('animations ennemis/boss_muridax/immobile_1', [8, 8, 8, 8, 8, 8])
+    muridax_frame = 0
+    muridax_etat = 'immobile_1'
+
     animation_database = {}
     animation_database['course']= load_animations('animations player/course', [8, 8, 8, 8, 8, 8, 8])#<- le dernier terme est le nombre de frame qui s'écoule entre chaque sprite
     animation_database['immobile']= load_animations('animations player/immobile', [20, 5])
     animation_database['saut']= load_animations('animations player/saut', [8, 20, 100, 8])
     player_action = 'immobile'
     player_frame = 0
-    player_flip = False
+    player_flip = False   ######################ne pas donner deux fois le meme nom a une animation
 
     animation_data_scarabee = {}
-    animation_data_scarabee['vivant'] = load_animations('animations ennemis/scarabee/vivant', [0, 0, 10])
-    animation_data_scarabee['degat'] = load_animations('animations ennemis/scarabee/degat', [16])
-    print(animation_data_scarabee)
+    animation_data_scarabee['vivantscarabee'] = load_animations('animations ennemis/scarabee/vivantscarabee', [6, 6, 6])
+    animation_data_scarabee['degatscarabee'] = load_animations('animations ennemis/scarabee/degatscarabee', [16])
+
     animation_data_araignee = {}
-    animation_data_araignee['vivant']= load_animations('animations ennemis/araignée/vivant', [4, 4])
-    animation_data_araignee['degat'] = load_animations('animations ennemis/araignée/degat', [16])
+    animation_data_araignee['vivantaraignee']= load_animations('animations ennemis/araignée/vivantaraignee', [4, 4])
+    animation_data_araignee['degataraignee'] = load_animations('animations ennemis/araignée/degataraignee', [16])
+
+
 
     #enemy_frame = 0
 
@@ -288,7 +295,8 @@ def game(screen,resolution):
         enemy = Enemy(spawn[0], spawn[1]-6, (ENEMY_WIDTH, ENEMY_HEIGHT), 1, 'scarabee', 0)  # creer un ennemi a ces coordonnées
         enemy_list.append(enemy)  # l'ajouter a la liste d'ennemis
 
-
+        for enemy in enemy_list:
+            print(enemy.etat)
     keys = 0
 
     dialogs = []
@@ -348,7 +356,7 @@ def game(screen,resolution):
             for projectile in projectile_groupe:
                 if projectile.rect.colliderect((enemy.x - scroll[0], enemy.y-scroll[1], ENEMY_WIDTH, ENEMY_HEIGHT)):
                     enemy.vie -= projectile.degats #fait prendre des degats a l'ennemi s'il touche un projectile
-                    enemy.etat='degat'
+                    enemy.etat='degataraignee'
                     projectile_groupe.remove(projectile)
                     pass
 
@@ -418,6 +426,15 @@ def game(screen,resolution):
                     #display.blit(enemy_image, (x * TILE_SIZE - scroll[0], y * TILE_SIZE - scroll[1]))
                     spawn_enemy = [x * TILE_SIZE, y * TILE_SIZE]  #donne les co de spawn de l'ennemi d'apres la map
                     spawn_scarabee_list.append(spawn_enemy)'''
+                if tile =='M':
+
+                    if muridax_frame >= len(animation_data_muridax[muridax_etat]):  # boucle d'animation
+                        muridax_frame = 0  # repart a 0
+                    scarabee_image_id = animation_data_muridax[muridax_etat][muridax_frame]  # l'image a afficher depend de l'action et de la frame ou en est le joueur
+
+                    image_muridax = animation_frames[scarabee_image_id]
+                    display.blit(image_muridax,(x * TILE_SIZE - scroll[0], y * TILE_SIZE - scroll[1]-3*32, TILE_SIZE, TILE_SIZE))
+
                 if tile != '0' and tile !='5' and tile!='7' and tile != '8' and tile != 'a' and tile != 'b': #pour toute tuile qui n'est pas de l'air ou un ennemi, ajouter a la liste des solides
                     tile_rects.append(pygame.Rect(x*TILE_SIZE, y*TILE_SIZE, TILE_SIZE, TILE_SIZE))
                     for projectile in projectile_groupe: #si un projectile touche un bloc il disparait
@@ -431,7 +448,7 @@ def game(screen,resolution):
                 x+=1#changer de case
             y+=1 #change de ligne
 
-
+        muridax_frame+=1
 
         player_movement = [0,0]# "vitesse" horizontale et verticale
         if moving_right : #si joueur va a droite
@@ -461,23 +478,23 @@ def game(screen,resolution):
             in_wall = False
 
 
-        '''if player_movement[0]>0 and in_air==False and course_d == False and course_g ==False and immobile==False:
+        '''if player_movement[0]>0 and in_air==False and course_d == False and course_g ==False and immobile_1==False:
             course_d = True
             #il se met a courir (droite)
             #player_flip=False
         else:
             course_d=False
-        if player_movement[0]<0 and in_air==False and course_g==False and course_d==False and immobile==False:
+        if player_movement[0]<0 and in_air==False and course_g==False and course_d==False and immobile_1==False:
             course_g = True
             #(gauche)
             #player_flip=True
         else:
             course_g=False'''
-        if player_movement[0]==0 and in_air == False : #si le jouer est immobile et n'est pas en l'air
-            #immobile = True
-            player_action, player_frame = change_action(player_action, player_frame, 'immobile')#immobile(animations?)
+        if player_movement[0]==0 and in_air == False : #si le jouer est immobile_1 et n'est pas en l'air
+            #immobile_1 = True
+            player_action, player_frame = change_action(player_action, player_frame, 'immobile')#immobile_1(animations?)
         #else:
-        #    immobile=False
+        #    immobile_1=False
 
         #print(player_action, player_frame, player_flip, in_air)
 
@@ -655,7 +672,7 @@ def game(screen,resolution):
                 pv -= 1 #il perd des pv
                 pass #il n'en perd pas a l'infini
             if enemy.vie >= 0:
-                enemy.etat = 'vivant'
+                enemy.etat = 'vivant'+enemy.type
             if enemy.vie < 0:
                 enemy_list.remove(enemy) #fait mourir l'ennemi
 
