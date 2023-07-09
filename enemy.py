@@ -1,7 +1,7 @@
 import pygame
 
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, x, y, taille, direction, type):
+    def __init__(self, x, y, taille, direction, type, frame):
         super().__init__()
         self.x = x
         self.y = y
@@ -17,6 +17,7 @@ class Enemy(pygame.sprite.Sprite):
         self.gauche = False
         self.attaque = 10
         self.type = type
+        self.frame = frame
 
         self.movement = [0, 0]
         self.collision = {}

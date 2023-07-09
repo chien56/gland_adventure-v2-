@@ -63,6 +63,9 @@ def game(screen,resolution):
     pics_image = pygame.image.load('images terrain/pics.png').convert_alpha()#charge image pics
     door_image = pygame.image.load('images terrain/door.png').convert_alpha()#charge image porte
 
+    feuille_image = pygame.image.load('feuille.png').convert_alpha()
+    feuille = False
+
     jumper_image = pygame.image.load('images terrain/champi.png').convert_alpha() #charge image champi rebondissant
     JUMPER_WIDTH = jumper_image.get_width() #recupere la largeur du champi
     JUMPER_HEIGHT = jumper_image.get_height() #recupere la hauteur du champi
@@ -182,21 +185,21 @@ def game(screen,resolution):
 
     animation_database = {}
     animation_database['course']= load_animations('animations player/course', [8, 8, 8, 8, 8, 8, 8])#<- le dernier terme est le nombre de frame qui s'écoule entre chaque sprite
-    animation_database['immobile']=load_animations('animations player/immobile', [20, 5])
+    animation_database['immobile']= load_animations('animations player/immobile', [20, 5])
     animation_database['saut']= load_animations('animations player/saut', [8, 20, 100, 8])
     player_action = 'immobile'
     player_frame = 0
     player_flip = False
 
     animation_data_scarabee = {}
-    animation_data_scarabee['vivant'] = load_animations('animations ennemis/scarabee/vivant', [4, 4, 4])
-    animation_data_scarabee['degat'] = load_animations('animations ennemis/araignée/degat', [16])
-
+    animation_data_scarabee['vivant'] = load_animations('animations ennemis/scarabee/vivant', [0, 0, 10])
+    animation_data_scarabee['degat'] = load_animations('animations ennemis/scarabee/degat', [16])
+    print(animation_data_scarabee)
     animation_data_araignee = {}
-    animation_data_araignee['vivant']=load_animations('animations ennemis/araignée/vivant', [4, 4])
+    animation_data_araignee['vivant']= load_animations('animations ennemis/araignée/vivant', [4, 4])
     animation_data_araignee['degat'] = load_animations('animations ennemis/araignée/degat', [16])
 
-    enemy_frame = 0
+    #enemy_frame = 0
 
     grass_sound_timer = 0
 
@@ -273,16 +276,18 @@ def game(screen,resolution):
             x+=1
         y+=1
 
+
     ENEMY_HEIGHT = 35
     ENEMY_WIDTH = 35
     enemy_list=[] #crée une liste d'ennemis
 
     for spawn in spawn_araignee_list:  # pour chaque coordonnées de spawn de la liste
-        enemy = Enemy(spawn[0], spawn[1]-6, (ENEMY_WIDTH, ENEMY_HEIGHT), 1, 'araignee')  # creer un ennemi a ces coordonnées
+        enemy = Enemy(spawn[0], spawn[1]-6, (ENEMY_WIDTH, ENEMY_HEIGHT), 1, 'araignee', 0)  # creer un ennemi a ces coordonnées
         enemy_list.append(enemy)  # l'ajouter a la liste d'ennemis
     for spawn in spawn_scarabee_list:  # pour chaque coordonnées de spawn de la liste
-        enemy = Enemy(spawn[0], spawn[1]-6, (ENEMY_WIDTH, ENEMY_HEIGHT), 1, 'scarabee')  # creer un ennemi a ces coordonnées
+        enemy = Enemy(spawn[0], spawn[1]-6, (ENEMY_WIDTH, ENEMY_HEIGHT), 1, 'scarabee', 0)  # creer un ennemi a ces coordonnées
         enemy_list.append(enemy)  # l'ajouter a la liste d'ennemis
+
 
     keys = 0
 
@@ -375,11 +380,11 @@ def game(screen,resolution):
                     display.blit(stone_image, (x * TILE_SIZE - scroll[0], y * TILE_SIZE - scroll[1]))
                 if tile == '4':#case4 afficher un champi
                     jumper_objects.append(jumper_obj((x * TILE_SIZE -1, y * TILE_SIZE -1)))
-                if tile == '5':#case5 donner les coordonnées pour les ennemis
+                '''if tile == '5':#case5 donner les coordonnées pour les ennemis
                     #display.blit(enemy_image, (x * TILE_SIZE - scroll[0], y * TILE_SIZE - scroll[1]))
                     spawn_enemy = [x * TILE_SIZE, y * TILE_SIZE]  #donne les co de spawn de l'ennemi d'apres la map
                     spawn_araignee_list.append(spawn_enemy) #ajoute les co de la case a la liste des spawns d'ennemi
-                    #enemy_list.append(Enemy(spawn_enemy[0], spawn_enemy[1], (35, 35), enemy_image, 1))
+                    #enemy_list.append(Enemy(spawn_enemy[0], spawn_enemy[1], (35, 35), enemy_image, 1))'''
                 if tile == '6': #case6 affiche une caisse
                     display.blit(caisse_image, (x * TILE_SIZE - scroll[0], y * TILE_SIZE - scroll[1]))
                     for projectile in projectile_groupe:
@@ -409,10 +414,10 @@ def game(screen,resolution):
                     display.blit(image_pnj, (x * TILE_SIZE - scroll[0], y * TILE_SIZE - scroll[1] -12, TILE_SIZE, TILE_SIZE))
                     if player_rect.colliderect((x * TILE_SIZE , y * TILE_SIZE , TILE_SIZE, TILE_SIZE)):
                         dialogbox.render(display)
-                if tile == 'b':#case5 donner les coordonnées pour les ennemis
+                '''if tile == 'b':#case5 donner les coordonnées pour les ennemis
                     #display.blit(enemy_image, (x * TILE_SIZE - scroll[0], y * TILE_SIZE - scroll[1]))
                     spawn_enemy = [x * TILE_SIZE, y * TILE_SIZE]  #donne les co de spawn de l'ennemi d'apres la map
-                    spawn_scarabee_list.append(spawn_enemy)
+                    spawn_scarabee_list.append(spawn_enemy)'''
                 if tile != '0' and tile !='5' and tile!='7' and tile != '8' and tile != 'a' and tile != 'b': #pour toute tuile qui n'est pas de l'air ou un ennemi, ajouter a la liste des solides
                     tile_rects.append(pygame.Rect(x*TILE_SIZE, y*TILE_SIZE, TILE_SIZE, TILE_SIZE))
                     for projectile in projectile_groupe: #si un projectile touche un bloc il disparait
@@ -504,7 +509,7 @@ def game(screen,resolution):
 
 
         player_frame += 1#les animations du joueurs avancent de 1 frame
-        enemy_frame +=1
+        #enemy_frame +=1
 
         for jumper in jumper_objects: #pour chaque champi
 
@@ -555,6 +560,9 @@ def game(screen,resolution):
 
                 if event.key == K_f:
                     inventory_open = True
+                if event.key == K_a:
+                    feuille = True
+
 
 
 
@@ -582,6 +590,8 @@ def game(screen,resolution):
                     joueur_a_tire = True#joueur tire
                 if event.key == K_f:
                     inventory_open = False
+                if event.key == K_a:
+                    feuille =False
 
         if joueur_a_tire: #si la touche de tir est relachée
             if len(projectile_groupe) < tir_autorise and delta_temps > 0.05: #si le nombre de projectiles affichés a l'ecran est inferieur au nombre de tir autorisé et deltatemps superieur a 0.05s
@@ -601,10 +611,9 @@ def game(screen,resolution):
         for enemy in enemy_list: #pour chaque ennemi dans la lioste d'ennemis
 
             if enemy.type == 'araignee':
-                if enemy_frame >= len(animation_data_araignee[enemy.etat]):  # boucle d'animation
-                    enemy_frame = 0  # repart a 0
-                araignee_image_id = animation_data_araignee[enemy.etat][
-                    enemy_frame]  # l'image a afficher depend de l'action et de la frame ou en est le joueur
+                if enemy.frame >= len(animation_data_araignee[enemy.etat]):  # boucle d'animation
+                    enemy.frame = 0  # repart a 0
+                araignee_image_id = animation_data_araignee[enemy.etat][enemy.frame]  # l'image a afficher depend de l'action et de la frame ou en est le joueur
 
                 araignee_image = animation_frames[araignee_image_id]  # donne l'image du joueur actuelle
                 enemy.render(display, scroll, araignee_image)  # afficher l'ennemi
@@ -616,20 +625,26 @@ def game(screen,resolution):
                 enemy.rect, enemy.collisions = move(enemy.rect, (enemy.direction, 0),tile_rects)  # si l'ennemi touche un mur il rebondit
 
             if enemy.type == 'scarabee':
-                if enemy_frame >= len(animation_data_scarabee[enemy.etat]):  # boucle d'animation
-                    enemy_frame = 0  # repart a 0
-                scarabee_image_id = animation_data_scarabee[enemy.etat][enemy_frame]  # l'image a afficher depend de l'action et de la frame ou en est le joueur
+                if enemy.frame >= len(animation_data_scarabee[enemy.etat]):  # boucle d'animation
+                    enemy.frame = 0  # repart a 0
+                scarabee_image_id = animation_data_scarabee[enemy.etat][enemy.frame]  # l'image a afficher depend de l'action et de la frame ou en est le joueur
 
                 scarabee_image = animation_frames[scarabee_image_id]  # donne l'image du joueur actuelle
                 enemy.render(display, scroll, scarabee_image)  # afficher l'ennemi
 
-                enemy.x += 3 * enemy.direction  # ajouter 1 a la pos x de l'ennemi
+                enemy.rect, enemy.collisions = move(enemy.rect, (enemy.direction, 0),tile_rects)  # si l'ennemi touche un mur il rebondit
+                if enemy.x - player_rect.x < 32*6 :
+                    if enemy.x - player_rect.x >1:
+                        enemy.direction = -1
+                    else:
+                        enemy.direction =1
+                enemy.x += 0.75  * enemy.direction  # ajouter 1 a la pos x de l'ennemi
                 enemy.rect[0] = enemy.x  # actualiser l'ennemi rect en ajoutant 1 aussi
                 enemy.y += 0  # ajouter 1 a la pos y de l'ennemi
                 enemy.rect[1] = enemy.y  # actualiser l'ennemi rect en ajoutant 1 aussi
-                enemy.rect, enemy.collisions = move(enemy.rect, (enemy.direction, 0),tile_rects)  # si l'ennemi touche un mur il rebondit
 
 
+            enemy.frame+=1
             if enemy.collisions['right']:
                 enemy.direction = -enemy.direction
             if enemy.collisions['left']:
@@ -666,9 +681,11 @@ def game(screen,resolution):
                 y+=1
             y = 0
 
-
-
             time.sleep(8 / fps)
+
+        if feuille:
+            display.blit(feuille_image, (player_rect.x-scroll[0], player_rect.y-scroll[1]-32 , 32, 32))
+            player_y_momentum=1
 
         '''options = button(100, 50, 50, 50, 'Options', (0, 0, 0), "in_menu = True", screen)
         screen.blit(display, options)'''
