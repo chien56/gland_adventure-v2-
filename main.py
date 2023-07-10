@@ -135,6 +135,7 @@ def game(screen,resolution):
 
     pv = 150 #initialise les pv
     jauge_vie = [20, 20, 150, 10] #initialise la position de la barre de vie
+    jauge_vie_boss = [150, 50, 300, 20]
 
     sound_game_over = pygame.mixer.Sound('son_go.mp3') #################################################### est ce que le bug des lags viendrait pas des canaux de son ?
     jump_sound = pygame.mixer.Sound('sons/jump.wav') #charge le son de saut
@@ -185,13 +186,17 @@ def game(screen,resolution):
 
     animation_data_muridax = {}
     animation_data_muridax['immobile_1'] = load_animations('animations ennemis/boss_muridax/immobile_1', [8, 8, 8, 8, 8, 8])
-    muridax_frame = 0
-    muridax_etat = 'immobile_1'
+    animation_data_muridax['endormi'] = load_animations('animations ennemis/boss_muridax/endormi',[8])
+    animation_data_muridax['roulade'] = load_animations('animations ennemis/boss_muridax/roulade',[8, 8, 8, 8, 8, 8, 8])
+    animation_data_muridax['saut_1'] = load_animations('animations ennemis/boss_muridax/saut_1',[8])
+    animation_data_muridax['tir'] = load_animations('animations ennemis/boss_muridax/tir',[16,16])
+
 
     animation_database = {}
     animation_database['course']= load_animations('animations player/course', [8, 8, 8, 8, 8, 8, 8])#<- le dernier terme est le nombre de frame qui s'écoule entre chaque sprite
     animation_database['immobile']= load_animations('animations player/immobile', [20, 5])
     animation_database['saut']= load_animations('animations player/saut', [8, 20, 100, 8])
+    animation_database['invulnerable'] = load_animations('animations player/invulnerable', [10,8])
     player_action = 'immobile'
     player_frame = 0
     player_flip = False   ######################ne pas donner deux fois le meme nom a une animation
@@ -272,6 +277,8 @@ def game(screen,resolution):
 
     spawn_araignee_list = [] #crée la liste des coordonnées de spawn de chaque ennemi
     spawn_scarabee_list = []
+    spawn_muridax = [0,0]
+
     y=0 #numero de ligne
     for row in game_map:#pour chaque ligne
         x=0 #numero de case
@@ -280,6 +287,9 @@ def game(screen,resolution):
                 spawn_araignee_list.append((x*TILE_SIZE, y*TILE_SIZE)) #permet d'obtenir les co de spawn des ennemi d'apres la map
             if tile == 'b':
                 spawn_scarabee_list.append((x*TILE_SIZE, y*TILE_SIZE))
+
+            if tile == 'M':
+                spawn_muridax = (x*TILE_SIZE, y*TILE_SIZE)
             x+=1
         y+=1
 
@@ -288,15 +298,19 @@ def game(screen,resolution):
     ENEMY_WIDTH = 35
     enemy_list=[] #crée une liste d'ennemis
 
+    muridaxs =[]
+    muridaxs.append(Enemy(spawn_muridax[0], spawn_muridax[1]-3*32, (128,128), 1, 'muridax', 0, 300))
+    for muridax in muridaxs:
+        muridax.etat = 'tir'
+
     for spawn in spawn_araignee_list:  # pour chaque coordonnées de spawn de la liste
-        enemy = Enemy(spawn[0], spawn[1]-6, (ENEMY_WIDTH, ENEMY_HEIGHT), 1, 'araignee', 0)  # creer un ennemi a ces coordonnées
+        enemy = Enemy(spawn[0], spawn[1]-6, (ENEMY_WIDTH, ENEMY_HEIGHT), 1, 'araignee', 0, 35)  # creer un ennemi a ces coordonnées
         enemy_list.append(enemy)  # l'ajouter a la liste d'ennemis
     for spawn in spawn_scarabee_list:  # pour chaque coordonnées de spawn de la liste
-        enemy = Enemy(spawn[0], spawn[1]-6, (ENEMY_WIDTH, ENEMY_HEIGHT), 1, 'scarabee', 0)  # creer un ennemi a ces coordonnées
+        enemy = Enemy(spawn[0], spawn[1]-6, (ENEMY_WIDTH, ENEMY_HEIGHT), 1, 'scarabee', 0, 50)  # creer un ennemi a ces coordonnées
         enemy_list.append(enemy)  # l'ajouter a la liste d'ennemis
 
-        for enemy in enemy_list:
-            print(enemy.etat)
+
     keys = 0
 
     dialogs = []
@@ -312,8 +326,10 @@ def game(screen,resolution):
     inventory_tile = pygame.image.load('case_inventaire.png').convert_alpha()
     inventory = load_map('inventory')
 
+    invulnerable = False
+    inv_timer = 0
 
-
+    combat_de_boss = False
 
     ###################################################################################################################################################################################
     ###################################################################################################################################################################################
@@ -327,6 +343,42 @@ def game(screen,resolution):
         tile_rects = []
 
         display.blit(image_arriere_plan, arriere_plan_rect)
+
+        if invulnerable:
+            player_action = 'invulnerable'
+            inv_timer +=1
+            if inv_timer > 100:
+                invulnerable =False
+                inv_timer =0
+        for muridax in muridaxs:
+            if muridax.frame >= len(animation_data_muridax[muridax.etat]):  # boucle d'animation
+                muridax.frame = 0  # repart a 0
+            muridax_image_id = animation_data_muridax[muridax.etat][muridax.frame]  # l'image a afficher depend de l'action et de la frame ou en est le joueur
+
+            image_muridax = animation_frames[muridax_image_id]
+            muridax.render(display, scroll, image_muridax)
+            if player_rect.colliderect(muridax.rect) and invulnerable==False:
+                pv -=10
+                player_rect.x -= direction*32
+                player_y_momentum =-5
+                invulnerable = True
+                pass
+            if muridax.x - player_rect.x < 32 * 6:
+                combat_de_boss = True
+            muridax.roulade(15, player_rect)
+            muridax.etat = 'roulade'
+
+            for projectile in projectile_groupe:
+                if projectile.rect.colliderect((muridax.x - scroll[0], muridax.y - scroll[1], 128,128)):
+                    muridax.vie -= projectile.degats  # fait prendre des degats a l'ennemi s'il touche un projectile
+                    #muridax.etat = 'degatmuridax'
+                    projectile_groupe.remove(projectile)
+                    pass
+
+            if muridax.vie<0:
+                combat_de_boss =False
+                muridaxs.remove(muridax)
+
 
 
 
@@ -403,8 +455,11 @@ def game(screen,resolution):
                     tile = '0' '''
                 if tile == '7':
                     display.blit(pics_image, (x * TILE_SIZE - scroll[0], y * TILE_SIZE - scroll[1], TILE_SIZE, TILE_SIZE))
-                    if player_rect.colliderect((x * TILE_SIZE , y * TILE_SIZE , TILE_SIZE, TILE_SIZE)):
+                    if player_rect.colliderect((x * TILE_SIZE , y * TILE_SIZE , TILE_SIZE, TILE_SIZE)) and invulnerable ==False:
                         pv -= 0.1
+                        player_rect.x -= direction * 32
+                        player_y_momentum = -5
+                        invulnerable =True
                         pass
                 if tile == '8':
                     display.blit(key_image,  (x * TILE_SIZE - scroll[0], y * TILE_SIZE - scroll[1], TILE_SIZE, TILE_SIZE))
@@ -426,16 +481,9 @@ def game(screen,resolution):
                     #display.blit(enemy_image, (x * TILE_SIZE - scroll[0], y * TILE_SIZE - scroll[1]))
                     spawn_enemy = [x * TILE_SIZE, y * TILE_SIZE]  #donne les co de spawn de l'ennemi d'apres la map
                     spawn_scarabee_list.append(spawn_enemy)'''
-                if tile =='M':
 
-                    if muridax_frame >= len(animation_data_muridax[muridax_etat]):  # boucle d'animation
-                        muridax_frame = 0  # repart a 0
-                    scarabee_image_id = animation_data_muridax[muridax_etat][muridax_frame]  # l'image a afficher depend de l'action et de la frame ou en est le joueur
 
-                    image_muridax = animation_frames[scarabee_image_id]
-                    display.blit(image_muridax,(x * TILE_SIZE - scroll[0], y * TILE_SIZE - scroll[1]-3*32, TILE_SIZE, TILE_SIZE))
-
-                if tile != '0' and tile !='5' and tile!='7' and tile != '8' and tile != 'a' and tile != 'b': #pour toute tuile qui n'est pas de l'air ou un ennemi, ajouter a la liste des solides
+                if tile != '0' and tile !='5' and tile!='7' and tile != '8' and tile != 'a' and tile != 'b' and tile !='M': #pour toute tuile qui n'est pas de l'air ou un ennemi, ajouter a la liste des solides
                     tile_rects.append(pygame.Rect(x*TILE_SIZE, y*TILE_SIZE, TILE_SIZE, TILE_SIZE))
                     for projectile in projectile_groupe: #si un projectile touche un bloc il disparait
                         if projectile.rect.colliderect((x * TILE_SIZE - scroll[0], y * TILE_SIZE - scroll[1], TILE_SIZE, TILE_SIZE)):
@@ -448,7 +496,8 @@ def game(screen,resolution):
                 x+=1#changer de case
             y+=1 #change de ligne
 
-        muridax_frame+=1
+        for muridax in muridaxs:
+            muridax.frame+=1
 
         player_movement = [0,0]# "vitesse" horizontale et verticale
         if moving_right : #si joueur va a droite
@@ -668,8 +717,11 @@ def game(screen,resolution):
                 enemy.direction = -enemy.direction
             '''if enemy.collisions['bottom'] == False:
                 enemy.direction = -enemy.direction'''
-            if player_rect.colliderect((enemy.x , enemy.y, ENEMY_WIDTH, ENEMY_HEIGHT)): #si le joueur touche un ennemi
+            if player_rect.colliderect((enemy.x , enemy.y, ENEMY_WIDTH, ENEMY_HEIGHT)) and invulnerable ==False: #si le joueur touche un ennemi
                 pv -= 1 #il perd des pv
+                player_rect.x -= direction * 32
+                player_y_momentum = -5
+                invulnerable=True
                 pass #il n'en perd pas a l'infini
             if enemy.vie >= 0:
                 enemy.etat = 'vivant'+enemy.type
@@ -699,6 +751,18 @@ def game(screen,resolution):
             y = 0
 
             time.sleep(8 / fps)
+
+        if combat_de_boss:
+            for muridax in muridaxs:
+
+                pygame.draw.rect(display, (0, 0, 0),(jauge_vie_boss))  # dessine un rectangle rouge aux co de la barre de vie
+                pygame.draw.rect(display, (255, 0, 0), (jauge_vie_boss[0], jauge_vie_boss[1], muridax.vie, jauge_vie_boss[3]))
+
+                #musique de boss
+
+                font = pygame.font.Font('police.ttf', 25)
+                texte = font.render('MURIDAX ' , False, (255, 0,0))
+                display.blit(texte, (250, 20))
 
         if feuille:
             display.blit(feuille_image, (player_rect.x-scroll[0], player_rect.y-scroll[1]-32 , 32, 32))

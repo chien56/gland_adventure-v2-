@@ -1,7 +1,7 @@
 import pygame
 
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, x, y, taille, direction, type, frame):
+    def __init__(self, x, y, taille, direction, type, frame, vie):
         super().__init__()
         self.x = x
         self.y = y
@@ -11,7 +11,7 @@ class Enemy(pygame.sprite.Sprite):
         self.direction = direction
         self.etat = 'vivant'+type
         self.index = 0
-        self.vie = 35
+        self.vie = vie
         self.degats_recus = 0
         self.droite = True
         self.gauche = False
@@ -71,3 +71,14 @@ class Enemy(pygame.sprite.Sprite):
     def move(self, speed):
         self.x += speed * self.direction
         self.y += 0.2
+    def roulade(self, speed, rect):
+
+        if self.x - rect.x < 32 * 6:
+            if self.x - rect.x > 1:
+                self.direction =-1
+            else:
+                self.direction = 1
+        self.x += 0.75 * self.direction  # ajouter 1 a la pos x de l'ennemi
+        self.rect[0] = self.x  # actualiser l'ennemi rect en ajoutant 1 aussi
+        self.y += 0  # ajouter 1 a la pos y de l'ennemi
+        self.rect[1] = self.y  # actualiser l'ennemi rect en ajoutant 1 aussi
