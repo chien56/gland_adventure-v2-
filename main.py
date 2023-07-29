@@ -301,7 +301,7 @@ def game(screen,resolution):
     muridaxs =[]
     muridaxs.append(Enemy(spawn_muridax[0], spawn_muridax[1]-3*32, (128,128), 1, 'muridax', 0, 300))
     for muridax in muridaxs:
-        muridax.etat = 'tir'
+        muridax.etat = 'endormi'
 
     for spawn in spawn_araignee_list:  # pour chaque coordonnées de spawn de la liste
         enemy = Enemy(spawn[0], spawn[1]-6, (ENEMY_WIDTH, ENEMY_HEIGHT), 1, 'araignee', 0, 35)  # creer un ennemi a ces coordonnées
@@ -330,6 +330,7 @@ def game(screen,resolution):
     inv_timer = 0
 
     combat_de_boss = False
+    pattern_timer =0
 
     ###################################################################################################################################################################################
     ###################################################################################################################################################################################
@@ -365,8 +366,35 @@ def game(screen,resolution):
                 pass
             if muridax.x - player_rect.x < 32 * 6:
                 combat_de_boss = True
-            muridax.roulade(15, player_rect)
-            muridax.etat = 'roulade'
+                muridax.etat = 'immobile_1'
+                muridax.roulade(15,player_rect)
+                #pattern_timer+=1
+                #print(pattern_timer)
+
+            '''while combat_de_boss:
+                muridax.roulade(15,player_rect)
+                pattern = random.randint(0,3)
+                #pattern_timer = 0
+
+                if pattern ==0:
+
+                    muridax.roulade(15, player_rect)
+                    muridax.etat = 'roulade'
+                if pattern ==1:
+
+                    muridax.etat = 'immobile_1'
+                if pattern ==2:
+                    pass
+                    while pattern_timer < 300:
+                        muridax.etat = 'tir'
+                        muridax.tir()
+                if pattern ==3:
+                    #muridax.saut(player_rect)
+
+                    muridax.etat = 'saut'
+                    muridax.etat = 'immobile_1'''''
+
+
 
             for projectile in projectile_groupe:
                 if projectile.rect.colliderect((muridax.x - scroll[0], muridax.y - scroll[1], 128,128)):

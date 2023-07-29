@@ -75,10 +75,21 @@ class Enemy(pygame.sprite.Sprite):
 
         if self.x - rect.x < 32 * 6:
             if self.x - rect.x > 1:
-                self.direction =-1
+                self.direction = -1
             else:
                 self.direction = 1
         self.x += 0.75 * self.direction  # ajouter 1 a la pos x de l'ennemi
         self.rect[0] = self.x  # actualiser l'ennemi rect en ajoutant 1 aussi
         self.y += 0  # ajouter 1 a la pos y de l'ennemi
         self.rect[1] = self.y  # actualiser l'ennemi rect en ajoutant 1 aussi
+
+    def saut(self, rect):
+        if self.x - rect.x < 32 * 6:
+            if self.x - rect.x > 1:
+                self.direction =-1
+            else:
+                self.direction = 1
+        self.y -= 15
+        self.rect[1] = self.y
+        self.x += 0.75 * self.direction
+        self.rect[0] = self.x
